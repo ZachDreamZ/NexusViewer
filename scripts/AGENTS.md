@@ -19,14 +19,15 @@ Agent
 - The `.ico` is hand-rolled (no external library) so it stays reproducible without `pillow-ico` or `imageio`.
 
 ### capture-screenshots.cjs
-- A Node/Electron script that boots a hidden `BrowserWindow`, loads `dist/index.html`, injects a small piece of JS to set the scene, and calls `webContents.capturePage()` to write a PNG into `docs/screenshots/`.
-- Scenes: `welcome` (default), `editor` (loads sample markdown into the textarea), `about` (clicks the help button to open the modal).
+- A Node/Electron script that boots a hidden `BrowserWindow`, loads `dist/index.html`, and calls `webContents.capturePage()` to write a PNG into `docs/screenshots/`.
+- Scenes: `welcome` (dark, default), `welcome-light`, `about` (dark), `about-light`.
+- The script sets the `dark` class on `<html>` (or removes it) BEFORE capturing, then waits for two `requestAnimationFrame` callbacks plus an 800ms settle to clear the 300ms `transition-colors` animations.
 - Usage: `node node_modules/electron/dist/electron.exe scripts/capture-screenshots.cjs [scene]` — must be run **after** `npm run build` so `dist/index.html` exists.
-- Output: `docs/screenshots/{welcome,editor,about}.png`. Referenced from the root `README.md`.
+- Output: `docs/screenshots/{welcome,welcome-light,about,about-light}.png`. Referenced from the root `README.md`.
 
 ## Verification
 - Run `py scripts/generate_logo.py` and confirm `src/assets/logo.svg` + `build/icon.{png,ico}` exist and open cleanly.
-- Run `node node_modules/electron/dist/electron.exe scripts/capture-screenshots.cjs` and confirm three PNGs are written.
+- Run `node node_modules/electron/dist/electron.exe scripts/capture-screenshots.cjs` and confirm four PNGs (welcome, welcome-light, about, about-light) are written.
 
 ## Child DOX Index
 None

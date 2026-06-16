@@ -64,8 +64,8 @@ const FileTreeNode: React.FC<{
         disabled={isLoading}
         className={`w-full flex items-center gap-2 px-4 py-1.5 text-sm transition-colors disabled:opacity-50 ${
           isSelected
-            ? 'bg-slate-100 dark:bg-slate-800 text-neon-blue dark:text-neon-teal font-medium'
-            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/50'
+            ? 'bg-paper-soft dark:bg-slate-800 text-stone-900 dark:text-neon-teal font-medium'
+            : 'text-stone-600 dark:text-stone-500 hover:bg-paper-soft dark:hover:bg-slate-900/50'
         }`}
         style={{ paddingLeft: `${(depth * 12) + 16}px` }}
       >
@@ -79,9 +79,9 @@ const FileTreeNode: React.FC<{
           )
         )}
         {node.isDirectory ? (
-          <Folder size={14} className={isSelected ? 'text-neon-blue dark:text-neon-teal' : 'text-slate-400'} />
+          <Folder size={14} className={isSelected ? 'text-stone-900 dark:text-neon-teal' : 'text-stone-400'} />
         ) : (
-          <FileText size={14} className={isSelected ? 'text-neon-blue dark:text-neon-teal' : 'text-slate-400'} />
+          <FileText size={14} className={isSelected ? 'text-stone-900 dark:text-neon-teal' : 'text-stone-400'} />
         )}
         <span className="truncate">{node.name}</span>
       </button>
@@ -216,14 +216,14 @@ export const FileTree: React.FC<FileTreeProps> = ({ initialNodes, onFileSelect, 
   }, [menu]);
 
   return (
-    <div className="flex flex-col h-full border-r border-slate-200 dark:border-slate-800 w-64 bg-white dark:bg-charcoal transition-colors duration-300">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 dark:border-slate-800">
-        <Folder size={16} className="text-slate-400" />
-        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Explorer</span>
+    <div className="flex flex-col h-full border-r border-stone-200 dark:border-slate-800 w-64 bg-paper dark:bg-charcoal transition-colors duration-300">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-stone-200 dark:border-slate-800">
+        <Folder size={16} className="text-stone-400" />
+        <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">Explorer</span>
       </div>
       <div className="flex-1 overflow-y-auto py-2">
         {nodes.length === 0 ? (
-          <div className="px-4 py-6 text-xs text-slate-400 dark:text-slate-500">
+          <div className="px-4 py-6 text-xs text-slate-400 dark:text-stone-500">
             No folder open. Use the header button to choose one.
           </div>
         ) : (
@@ -244,35 +244,35 @@ export const FileTree: React.FC<FileTreeProps> = ({ initialNodes, onFileSelect, 
       {menu && (
         <div
           ref={menuRef}
-          className="fixed z-50 min-w-48 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-charcoal shadow-lg py-1 text-sm"
+          className="fixed z-50 min-w-48 rounded-md border border-stone-200 dark:border-stone-300 dark:border-slate-700 bg-paper dark:bg-charcoal shadow-lg py-1 text-sm"
           style={{ left: menu.x, top: menu.y }}
           role="menu"
         >
           {!menu.isDirectory && (
             <button
               onClick={handleOpen}
-              className="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+              className="w-full text-left px-3 py-1.5 hover:bg-paper-soft dark:hover:bg-slate-800 flex items-center gap-2"
               role="menuitem"
             >
-              <FileText size={14} className="text-slate-400" />
+              <FileText size={14} className="text-stone-400" />
               Open
             </button>
           )}
           <button
             onClick={handleReveal}
-            className="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+            className="w-full text-left px-3 py-1.5 hover:bg-paper-soft dark:hover:bg-slate-800 flex items-center gap-2"
             role="menuitem"
           >
-            <Folder size={14} className="text-slate-400" />
+            <Folder size={14} className="text-stone-400" />
             {menu.isDirectory ? 'Open in file manager' : 'Reveal in folder'}
           </button>
-          <div className="my-1 border-t border-slate-200 dark:border-slate-700" />
+          <div className="my-1 border-t border-stone-200 dark:border-stone-300 dark:border-slate-700" />
           <button
             onClick={handleRename}
-            className="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+            className="w-full text-left px-3 py-1.5 hover:bg-paper-soft dark:hover:bg-slate-800 flex items-center gap-2"
             role="menuitem"
           >
-            <Pencil size={14} className="text-slate-400" />
+            <Pencil size={14} className="text-stone-400" />
             Rename
           </button>
           <button

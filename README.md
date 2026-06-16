@@ -36,9 +36,11 @@ npm run electron:build   # Portable Windows build (dist_electron_v4/)
 
 ## Screenshots
 
-| Welcome | Editor | About |
+| Welcome (dark) | Welcome (light) | About (light) |
 | --- | --- | --- |
-| ![Welcome](docs/screenshots/welcome.png) | ![Editor](docs/screenshots/editor.png) | ![About](docs/screenshots/about.png) |
+| ![Welcome](docs/screenshots/welcome.png) | ![Welcome light](docs/screenshots/welcome-light.png) | ![About light](docs/screenshots/about-light.png) |
+
+Light mode uses a warm off-white paper (`#f3efe6`) with `#3a3631` ink for body text — softer than pure white, inspired by Typora Claude and Flexoki paper palettes.
 
 ## Keyboard Shortcuts
 

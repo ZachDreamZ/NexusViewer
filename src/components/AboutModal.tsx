@@ -47,10 +47,10 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-xl rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-charcoal shadow-2xl overflow-hidden"
+        className="w-full max-w-xl rounded-xl border border-stone-200 dark:border-slate-800 bg-paper dark:bg-charcoal shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-stone-200 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <img
               src={logo}
@@ -60,10 +60,10 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
               className="w-7 h-7 drop-shadow-[0_0_6px_rgba(0,242,255,0.35)]"
             />
             <div>
-              <h2 id="about-modal-title" className="text-sm font-bold tracking-tighter text-slate-900 dark:text-slate-100">
+              <h2 id="about-modal-title" className="text-sm font-bold tracking-tighter text-ink dark:text-slate-100">
                 NEXUSVIEWER
               </h2>
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+              <p className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">
                 Next-Gen Markdown Viewer
               </p>
             </div>
@@ -71,7 +71,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
           <button
             ref={closeRef}
             onClick={onClose}
-            className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-md text-stone-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             aria-label="Close about"
           >
             <X size={16} />
@@ -86,14 +86,14 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
           </p>
 
           <section>
-            <h3 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">
+            <h3 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-stone-500 uppercase tracking-widest mb-2">
               <Keyboard size={12} /> Keyboard Shortcuts
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
               {SHORTCUTS.map(([key, desc]) => (
                 <div key={key} className="flex items-center justify-between">
-                  <span className="text-slate-600 dark:text-slate-400">{desc}</span>
-                  <kbd className="px-1.5 py-0.5 text-[10px] font-mono rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-charcoal/60 text-slate-700 dark:text-slate-300">
+                  <span className="text-slate-600 dark:text-stone-500">{desc}</span>
+                  <kbd className="px-1.5 py-0.5 text-[10px] font-mono rounded border border-stone-200 dark:border-stone-300 dark:border-slate-700 bg-slate-50 dark:bg-charcoal/60 text-slate-700 dark:text-slate-300">
                     {key}
                   </kbd>
                 </div>
@@ -102,7 +102,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
           </section>
 
           <section>
-            <h3 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">
+            <h3 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-stone-500 uppercase tracking-widest mb-2">
               <BookOpen size={12} /> Resources
             </h3>
             <div className="space-y-1.5 text-xs">
@@ -114,19 +114,19 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
                   e.preventDefault();
                   window.electron.openExternal('https://github.com/ZachDreamZ');
                 }}
-                className="flex items-center justify-between p-2.5 rounded-md border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
+                className="flex items-center justify-between p-2.5 rounded-md border border-stone-200 dark:border-stone-300 dark:border-slate-700 hover:border-stone-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
               >
                 <span className="flex items-center gap-2">
-                  <GithubIcon className="w-3.5 h-3.5 text-slate-500" />
-                  <span className="font-medium text-slate-800 dark:text-slate-200">Author on GitHub</span>
+                  <GithubIcon className="w-3.5 h-3.5 text-stone-500" />
+                  <span className="font-medium text-ink dark:text-slate-200">Author on GitHub</span>
                 </span>
-                <ExternalLink size={12} className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
+                <ExternalLink size={12} className="text-stone-500 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
               </a>
             </div>
           </section>
         </div>
 
-        <div className="px-5 py-3 border-t border-slate-200 dark:border-slate-800 text-[10px] text-slate-400 font-mono flex items-center justify-between">
+        <div className="px-5 py-3 border-t border-stone-200 dark:border-slate-800 text-[10px] text-stone-500 font-mono flex items-center justify-between">
           <span>MIT License</span>
           <span>v0.1.5</span>
         </div>

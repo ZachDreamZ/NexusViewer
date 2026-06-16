@@ -18,14 +18,14 @@ const ICONS: Record<ToastVariant, React.ComponentType<{ size?: number; className
 };
 
 const VARIANT_CLASSES: Record<ToastVariant, string> = {
-  info: 'border-slate-200 dark:border-slate-700 bg-white dark:bg-charcoal text-slate-800 dark:text-slate-200',
-  success: 'border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-charcoal text-emerald-700 dark:text-emerald-300',
-  error: 'border-rose-200 dark:border-rose-800/50 bg-white dark:bg-charcoal text-rose-700 dark:text-rose-300',
-  warning: 'border-amber-200 dark:border-amber-800/50 bg-white dark:bg-charcoal text-amber-700 dark:text-amber-300',
+  info: 'border-stone-200 dark:border-stone-300 dark:border-slate-700 bg-paper dark:bg-charcoal text-ink dark:text-slate-200',
+  success: 'border-emerald-200 dark:border-emerald-800/50 bg-paper dark:bg-charcoal text-emerald-700 dark:text-emerald-300',
+  error: 'border-rose-200 dark:border-rose-800/50 bg-paper dark:bg-charcoal text-rose-700 dark:text-rose-300',
+  warning: 'border-amber-200 dark:border-amber-800/50 bg-paper dark:bg-charcoal text-amber-700 dark:text-amber-300',
 };
 
 const ICON_CLASSES: Record<ToastVariant, string> = {
-  info: 'text-slate-400',
+  info: 'text-stone-500',
   success: 'text-emerald-500',
   error: 'text-rose-500',
   warning: 'text-amber-500',

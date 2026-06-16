@@ -53,13 +53,13 @@ export const Editor: React.FC<EditorProps> = ({ content = '', onChange, onScroll
   };
 
   return (
-    <div className="flex flex-col h-full border-r border-slate-200 dark:border-slate-800 w-1/2 bg-white dark:bg-obsidian-lighter">
-      <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-800">
+    <div className="flex flex-col h-full border-r border-stone-200 dark:border-slate-800 w-1/2 bg-paper dark:bg-obsidian-lighter">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-paper-soft dark:bg-slate-900/30 border-b border-stone-200 dark:border-slate-800">
         <div className="flex items-center gap-2">
-          <FileText size={14} className="text-slate-400" />
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Source</span>
+          <FileText size={14} className="text-stone-400" />
+          <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">Source</span>
         </div>
-        <div className="text-[10px] text-slate-400 font-mono">
+        <div className="text-[10px] text-stone-400 font-mono">
           {(content || '').split('\n').length} lines
         </div>
       </div>
@@ -75,7 +75,7 @@ export const Editor: React.FC<EditorProps> = ({ content = '', onChange, onScroll
         ref={setTextareaRef}
         onScroll={onScroll}
         onKeyDown={handleKeyDown}
-        className="flex-1 p-8 bg-transparent text-slate-800 dark:text-slate-300 font-mono text-sm resize-none outline-none focus:ring-0 leading-relaxed"
+        className="editor-soft flex-1 p-8 bg-transparent text-ink dark:text-slate-300 font-mono text-sm resize-none outline-none focus:ring-0 leading-relaxed"
         value={content}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Begin your transmission..."

@@ -101,7 +101,7 @@ export const FindBar: React.FC<FindBarProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30">
+    <div className="border-b border-stone-200 dark:border-slate-800 bg-paper-soft dark:bg-slate-900/30">
       <div className="flex items-center gap-2 px-3 py-2">
         <input
           ref={searchInputRef}
@@ -122,15 +122,15 @@ export const FindBar: React.FC<FindBarProps> = ({
             }
           }}
           placeholder="Find"
-          className="flex-1 px-2 py-1 text-xs bg-white dark:bg-charcoal border border-slate-200 dark:border-slate-700 rounded outline-none focus:border-slate-400 dark:focus:border-slate-500"
+          className="flex-1 px-2 py-1 text-xs bg-paper dark:bg-charcoal border border-stone-200 dark:border-stone-300 dark:border-slate-700 rounded outline-none focus:border-slate-400 dark:focus:border-slate-500"
           aria-label="Find"
         />
-        <span className="text-[10px] text-slate-400 font-mono w-16 text-center">
+        <span className="text-[10px] text-stone-500 font-mono w-16 text-center">
           {query ? (matches.length === 0 ? 'No results' : `${matchIndex + 1} / ${matches.length}`) : ''}
         </span>
         <button
           onClick={() => setCaseSensitive(!caseSensitive)}
-          className={`p-1.5 rounded ${caseSensitive ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+          className={`p-1.5 rounded ${caseSensitive ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200' : 'text-stone-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
           title="Case sensitive"
           aria-label="Toggle case sensitivity"
           aria-pressed={caseSensitive}
@@ -140,7 +140,7 @@ export const FindBar: React.FC<FindBarProps> = ({
         <button
           onClick={goPrev}
           disabled={matches.length === 0}
-          className="p-1.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
+          className="p-1.5 rounded text-stone-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
           title="Previous match (Shift+Enter)"
           aria-label="Previous match"
         >
@@ -149,7 +149,7 @@ export const FindBar: React.FC<FindBarProps> = ({
         <button
           onClick={goNext}
           disabled={matches.length === 0}
-          className="p-1.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
+          className="p-1.5 rounded text-stone-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
           title="Next match (Enter)"
           aria-label="Next match"
         >
@@ -157,7 +157,7 @@ export const FindBar: React.FC<FindBarProps> = ({
         </button>
         <button
           onClick={onClose}
-          className="p-1.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          className="p-1.5 rounded text-stone-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
           title="Close (Escape)"
           aria-label="Close find bar"
         >
@@ -180,20 +180,20 @@ export const FindBar: React.FC<FindBarProps> = ({
               }
             }}
             placeholder="Replace with"
-            className="flex-1 px-2 py-1 text-xs bg-white dark:bg-charcoal border border-slate-200 dark:border-slate-700 rounded outline-none focus:border-slate-400 dark:focus:border-slate-500"
+            className="flex-1 px-2 py-1 text-xs bg-paper dark:bg-charcoal border border-stone-200 dark:border-stone-300 dark:border-slate-700 rounded outline-none focus:border-slate-400 dark:focus:border-slate-500"
             aria-label="Replace with"
           />
           <button
             onClick={replaceCurrent}
             disabled={matches.length === 0}
-            className="px-2 py-1 text-[11px] rounded text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="px-2 py-1 text-[11px] rounded text-slate-500 dark:text-stone-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             Replace
           </button>
           <button
             onClick={replaceAll}
             disabled={matches.length === 0}
-            className="px-2 py-1 text-[11px] rounded text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="px-2 py-1 text-[11px] rounded text-slate-500 dark:text-stone-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             All
           </button>

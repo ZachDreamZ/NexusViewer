@@ -5,13 +5,20 @@
 @theme {
   --color-obsidian: #0b0f19;
   --color-obsidian-lighter: #161b26;
+  --color-paper: #f3efe6;
+  --color-paper-soft: #ece7dc;
+  --color-paper-strong: #e2dccd;
+  --color-paper-card: #f8f5ee;
   --color-ivory: #fcfaf7;
+  --color-ink: #3a3631;
+  --color-ink-soft: #6b6660;
+  --color-ink-mute: #9a9389;
   --color-clay: #a89f91;
   --color-neon-blue: #7dd3fc;
   --color-neon-purple: #c084fc;
   --color-neon-teal: #00f2ff;
-  --color-charcoal: #1e1e1e;
-  
+  --color-charcoal: #16181d;
+
   --font-mono: "JetBrains Mono", monospace;
   --font-sans: "Inter", sans-serif;
   --font-serif: "Lora", serif;
@@ -19,28 +26,44 @@
 
 :root {
   font-family: var(--font-sans);
-  background-color: var(--color-ivory);
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
 }
 
 body {
-  @apply bg-ivory text-charcoal dark:bg-charcoal dark:text-slate-300 transition-colors duration-300;
+  @apply bg-paper text-ink dark:bg-charcoal dark:text-slate-300 transition-colors duration-300;
   margin: 0;
+  font-feature-settings: "ss01" on, "cv11" on;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Custom Prose Refinements for NexusViewer */
 .markdown-body {
-  @apply prose prose-slate max-w-none dark:prose-invert;
+  @apply prose prose-stone max-w-none dark:prose-invert;
   font-family: var(--font-serif);
   line-height: 1.75;
+  font-weight: 400;
+  @apply text-ink-soft dark:text-slate-300;
 }
 
-.markdown-body h1, 
-.markdown-body h2, 
+.markdown-body h1,
+.markdown-body h2,
 .markdown-body h3 {
   font-family: var(--font-sans);
   font-weight: 700;
   letter-spacing: -0.02em;
-  @apply text-slate-900 dark:text-slate-100;
+  @apply text-ink dark:text-slate-100;
+}
+
+.markdown-body a {
+  @apply text-amber-700 dark:text-neon-teal underline-offset-2 hover:underline;
 }
 
 /* Custom Scrollbar */
@@ -54,5 +77,19 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 dark:bg-slate-700 rounded-full hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors;
+  @apply bg-stone-300 dark:bg-slate-700 rounded-full hover:bg-stone-400 dark:hover:bg-slate-600 transition-colors;
+}
+
+/* Soft text shadow for the editor — reduces ink-on-paper contrast subtly */
+textarea.editor-soft {
+  caret-color: #3a3631;
+  text-shadow: 0 0 0.5px rgba(60, 50, 40, 0.06);
+}
+
+/* Subtle background pattern to break the flatness of large paper surfaces */
+.bg-paper-textured {
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(at 0% 0%, rgba(168, 159, 145, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 159, 145, 0.04) 0px, transparent 50%);
 }

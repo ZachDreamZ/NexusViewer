@@ -7,7 +7,7 @@ import { FolderOpen } from 'lucide-react';
 
 export const Welcome: React.FC = () => {
   return (
-    <div className="flex-1 h-full overflow-y-auto bg-white dark:bg-obsidian">
+    <div className="flex-1 h-full overflow-y-auto bg-paper dark:bg-obsidian">
       <div className="max-w-3xl mx-auto px-8 md:px-16 py-12 markdown-body">
         <div className="flex items-start justify-between gap-4 mb-8">
           <img
@@ -29,7 +29,7 @@ export const Welcome: React.FC = () => {
           remarkPlugins={[remarkGfm]}
           components={{
             h1: ({ children }) => (
-              <h1 className="text-5xl font-bold mb-8 mt-2 pb-4 border-b border-slate-200 dark:border-slate-800">
+              <h1 className="text-5xl font-bold mb-8 mt-2 pb-4 border-b border-stone-200 dark:border-slate-800">
                 {children}
               </h1>
             ),
@@ -41,21 +41,21 @@ export const Welcome: React.FC = () => {
             ),
             table: ({ children }) => (
               <div className="overflow-x-auto my-8">
-                <table className="w-full border-collapse text-sm border border-slate-200 dark:border-slate-800">{children}</table>
+                <table className="w-full border-collapse text-sm border border-stone-200 dark:border-slate-800">{children}</table>
               </div>
             ),
             th: ({ children }) => (
-              <th className="border border-slate-200 dark:border-slate-800 px-4 py-3 bg-slate-50 dark:bg-slate-900/50 font-bold text-left text-slate-600 dark:text-slate-400 uppercase tracking-tight">
+              <th className="border border-stone-200 dark:border-slate-800 px-4 py-3 bg-paper-soft dark:bg-slate-900/50 font-bold text-left text-slate-600 dark:text-stone-500 uppercase tracking-tight">
                 {children}
               </th>
             ),
             td: ({ children }) => (
-              <td className="border border-slate-200 dark:border-slate-800 px-4 py-3 leading-relaxed">
+              <td className="border border-stone-200 dark:border-slate-800 px-4 py-3 leading-relaxed">
                 {children}
               </td>
             ),
             blockquote: ({ children }) => (
-              <blockquote className="border-l-4 border-clay dark:border-slate-700 pl-6 py-1 italic text-slate-600 dark:text-slate-400 my-8 text-lg leading-relaxed">
+              <blockquote className="border-l-4 border-clay dark:border-stone-300 dark:border-slate-700 pl-6 py-1 italic text-slate-600 dark:text-stone-500 my-8 text-lg leading-relaxed">
                 {children}
               </blockquote>
             ),
@@ -69,7 +69,7 @@ export const Welcome: React.FC = () => {
               if (!inline && match) {
                 return (
                   <code
-                    className="block bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 p-4 rounded-lg text-sm font-mono my-4 overflow-x-auto whitespace-pre"
+                    className="block bg-paper-soft dark:bg-slate-900/50 border border-stone-200 dark:border-slate-800 p-4 rounded-lg text-sm font-mono my-4 overflow-x-auto whitespace-pre"
                     {...props}
                   >
                     {text}
@@ -77,12 +77,12 @@ export const Welcome: React.FC = () => {
                 );
               }
               return (
-                <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm font-mono text-clay dark:text-neonTeal" {...props}>
+                <code className="bg-paper-soft dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm font-mono text-clay dark:text-neonTeal" {...props}>
                   {children}
                 </code>
               );
             },
-            hr: () => <hr className="my-12 border-slate-200 dark:border-slate-800" />,
+            hr: () => <hr className="my-12 border-stone-200 dark:border-slate-800" />,
           }}
         >
           {welcomeContent}

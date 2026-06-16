@@ -284,10 +284,10 @@ export const Layout: React.FC<LayoutProps> = ({ darkMode, setDarkMode }) => {
 
   return (
     <div className="flex flex-col h-screen transition-colors duration-300">
-      <div className="flex flex-col h-full bg-white dark:bg-charcoal text-slate-900 dark:text-slate-300">
+      <div className="flex flex-col h-full bg-paper text-ink dark:bg-charcoal dark:text-slate-300">
 
         {/* Header */}
-        <header className="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-charcoal z-10 gap-3">
+        <header className="flex items-center justify-between px-4 py-2 border-b border-stone-200 dark:border-slate-800 bg-paper dark:bg-charcoal z-10 gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <img
               src={logo}
@@ -298,7 +298,7 @@ export const Layout: React.FC<LayoutProps> = ({ darkMode, setDarkMode }) => {
             />
             <h1 className="text-sm font-bold tracking-tighter shrink-0">NEXUSVIEWER</h1>
             {projectRoot && (
-              <span className="text-[10px] text-slate-400 font-mono truncate min-w-0">
+              <span className="text-[10px] text-stone-500 font-mono truncate min-w-0">
                 {projectRoot}
               </span>
             )}
@@ -307,27 +307,27 @@ export const Layout: React.FC<LayoutProps> = ({ darkMode, setDarkMode }) => {
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={handleNewFile}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs font-medium"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-stone-600 dark:text-slate-300 hover:bg-paper-soft dark:hover:bg-slate-800 transition-colors text-xs font-medium"
               title="New file (Ctrl+N)"
             >
               <FilePlus size={14} /> New
             </button>
             <button
               onClick={handleChooseFolder}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs font-medium"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-paper-soft dark:bg-slate-800 text-stone-700 dark:text-slate-200 hover:bg-paper-strong dark:hover:bg-slate-700 transition-colors text-xs font-medium"
               title="Open folder (Ctrl+O)"
             >
               <FolderOpen size={14} /> Open Folder
             </button>
 
-            <div className="w-px h-5 bg-slate-200 dark:bg-slate-800 mx-1" />
+            <div className="w-px h-5 bg-paper-strong dark:bg-slate-800 mx-1" />
 
             <button
               onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-colors text-xs font-medium ${
                 autoSaveEnabled
                   ? 'bg-neon-teal/10 text-neon-teal'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  : 'text-stone-600 dark:text-slate-300 hover:bg-paper-soft dark:hover:bg-slate-800'
               }`}
               title={autoSaveEnabled ? 'Disable auto-save' : 'Enable auto-save'}
               aria-pressed={autoSaveEnabled}
@@ -337,14 +337,14 @@ export const Layout: React.FC<LayoutProps> = ({ darkMode, setDarkMode }) => {
             <button
               onClick={handleSave}
               disabled={!state.filePath}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs font-medium disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-stone-600 dark:text-slate-300 hover:bg-paper-soft dark:hover:bg-slate-800 transition-colors text-xs font-medium disabled:opacity-30 disabled:cursor-not-allowed"
               title="Save (Ctrl+S)"
             >
               <Save size={14} />
             </button>
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-md text-stone-500 hover:bg-paper-soft dark:hover:bg-slate-800 transition-colors"
               aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
             >
@@ -352,7 +352,7 @@ export const Layout: React.FC<LayoutProps> = ({ darkMode, setDarkMode }) => {
             </button>
             <button
               onClick={() => setAboutOpen(true)}
-              className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-md text-stone-500 hover:bg-paper-soft dark:hover:bg-slate-800 transition-colors"
               aria-label="Open about and shortcuts"
               title="About & shortcuts"
             >

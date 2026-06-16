@@ -12,7 +12,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "electron:start": "npm run build && electron .",
-    "electron:build": "pwsh -Command \"Remove-Item -Recurse -Force dist_electron* -ErrorAction SilentlyContinue\" && npm run build && electron-builder"
+    "electron:build": "pwsh -Command \"Remove-Item -Recurse -Force dist_electron* -ErrorAction SilentlyContinue\" && npm run build && electron-builder",
+    "electron:build:portable": "npm run build && electron-builder --win portable --config.forceCodeSigning=false",
+    "electron:build:installer": "npm run build && electron-builder --win nsis --config.forceCodeSigning=false",
+    "electron:build:all": "npm run build && electron-builder --win portable nsis --config.forceCodeSigning=false"
   },
   "build": {
     "appId": "com.nexusviewer.markdown",
@@ -26,7 +29,24 @@
     ],
     "icon": "build/icon.ico",
     "win": {
-      "target": "portable"
+      "target": [
+        { "target": "portable", "arch": ["x64"] },
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "NexusViewer",
+      "uninstallDisplayName": "NexusViewer",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "NexusViewer-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "NexusViewer-Portable-${version}.${ext}"
     }
   },
   "dependencies": {
