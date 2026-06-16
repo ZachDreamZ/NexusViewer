@@ -1,0 +1,68 @@
+{
+  "name": "nexusviewer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "description": "NexusViewer — a minimal, developer-focused Markdown viewer and editor.",
+  "author": "ZachDreamZ",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron:start": "npm run build && electron .",
+    "electron:build": "pwsh -Command \"Remove-Item -Recurse -Force dist_electron* -ErrorAction SilentlyContinue\" && npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "com.nexusviewer.markdown",
+    "productName": "NexusViewer",
+    "directories": {
+      "output": "dist_electron_v4"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "icon": "build/icon.ico",
+    "win": {
+      "target": "portable"
+    }
+  },
+  "dependencies": {
+    "chokidar": "^5.0.0",
+    "js-yaml": "^4.2.0",
+    "lucide-react": "^1.17.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-markdown": "^10.1.0",
+    "react-syntax-highlighter": "^16.1.1",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/postcss": "^4.3.0",
+    "@tailwindcss/typography": "^0.5.20",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^24.12.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.5.0",
+    "electron": "^42.4.0",
+    "electron-builder": "^26.15.2",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.12"
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true
+  }
+}
