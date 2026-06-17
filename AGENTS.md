@@ -82,6 +82,7 @@ Default section order:
 
 ## Child DOX Index
 
+- .opencode/skills: Design skills (e.g. `apple-modern-ui`).
 - docs: Screenshots and long-form documentation.
 - electron: Main process, preload bridge, and custom protocol handler.
 - scripts: Developer-side Python scripts (e.g. logo generation).

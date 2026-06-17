@@ -16,6 +16,9 @@ Agent
 - All cross-cutting state (file, toasts) lives under `src/context/`.
 - Static assets go in `src/assets/`; icons/scripts go in `public/` (Vite copies `public/` to `dist/` verbatim).
 - `verbatimModuleSyntax: true` in `tsconfig.app.json` — use `import type` for type-only imports.
+- **Design tokens live in `src/index.css`** under `@theme inline`. They follow the shadcn-ui pattern: `background` / `foreground`, `card` / `card-foreground`, `primary` / `primary-foreground`, `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `sidebar-*`. Light values are OKLCH grays/blues with a tiny chroma; dark values are deeper neutrals. The cyan accent (`--color-neon-cyan*`) is the brand pop used by the logo and selected states.
+- Components reference tokens (`bg-background`, `text-foreground`, etc.) — **never** raw `bg-white` / `text-slate-900`. A new component must use at least 3 tokens from the catalog.
+- Frosted-glass surfaces use the `.frosted` utility (declared in `index.css`).
 
 ## Verification
 - `npm run build` must pass.

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { X, ExternalLink, BookOpen, Keyboard } from 'lucide-react';
-import { GithubIcon } from './GithubIcon';
+import { X, ExternalLink } from 'lucide-react';
+import { GithubIcon, Keyboard, BookOpen } from './Icons';
 import logo from '../assets/logo.svg';
 
 interface AboutModalProps {
@@ -9,14 +9,14 @@ interface AboutModalProps {
 }
 
 const SHORTCUTS: Array<[string, string]> = [
-  ['Ctrl + O', 'Open folder'],
-  ['Ctrl + N', 'New file'],
-  ['Ctrl + S', 'Save'],
-  ['Ctrl + F', 'Find'],
-  ['Ctrl + H', 'Find & replace'],
-  ['Ctrl + B', 'Bold selection'],
-  ['Ctrl + I', 'Italic selection'],
-  ['Ctrl + K', 'Insert link'],
+  ['⌘ / Ctrl + N', 'New file'],
+  ['⌘ / Ctrl + O', 'Open folder'],
+  ['⌘ / Ctrl + S', 'Save'],
+  ['⌘ / Ctrl + F', 'Find'],
+  ['⌘ / Ctrl + H', 'Find & replace'],
+  ['⌘ / Ctrl + B', 'Bold selection'],
+  ['⌘ / Ctrl + I', 'Italic selection'],
+  ['⌘ / Ctrl + K', 'Insert link'],
 ];
 
 export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
@@ -40,60 +40,64 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-foreground/40 backdrop-blur-sm animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-labelledby="about-modal-title"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-xl rounded-xl border border-stone-200 dark:border-slate-800 bg-paper dark:bg-charcoal shadow-2xl overflow-hidden"
+        className="w-full max-w-md rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl shadow-foreground/20 overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-3 border-b border-stone-200 dark:border-slate-800">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between h-12 px-4 border-b border-border">
+          <div className="flex items-center gap-2.5">
             <img
               src={logo}
               alt=""
-              width={28}
-              height={28}
-              className="w-7 h-7 drop-shadow-[0_0_6px_rgba(0,242,255,0.35)]"
+              width={22}
+              height={22}
+              className="w-[22px] h-[22px]"
+              style={{ filter: 'drop-shadow(0 0 6px var(--color-neon-cyan-glow))' }}
             />
             <div>
-              <h2 id="about-modal-title" className="text-sm font-bold tracking-tighter text-ink dark:text-slate-100">
-                NEXUSVIEWER
+              <h2 id="about-modal-title" className="text-callout font-semibold tracking-tight leading-none">
+                NexusViewer
               </h2>
-              <p className="text-[10px] text-stone-500 uppercase tracking-widest font-bold">
-                Next-Gen Markdown Viewer
+              <p className="text-caption-2 text-muted-foreground uppercase tracking-wider font-semibold mt-0.5">
+                Markdown Viewer
               </p>
             </div>
           </div>
           <button
             ref={closeRef}
             onClick={onClose}
-            className="p-1.5 rounded-md text-stone-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200 ease-out"
             aria-label="Close about"
           >
-            <X size={16} />
+            <X size={14} />
           </button>
         </div>
 
-        <div className="p-5 space-y-5 text-sm text-slate-700 dark:text-slate-300">
-          <p className="leading-relaxed">
+        <div className="p-5 space-y-5">
+          <p className="text-body leading-relaxed text-muted-foreground">
             A minimal, developer-focused Markdown viewer and editor. Fuses Claude's visual
             minimalism with Open Code's developer-centric power. No telemetry, no cloud, no
             accounts.
           </p>
 
           <section>
-            <h3 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-stone-500 uppercase tracking-widest mb-2">
-              <Keyboard size={12} /> Keyboard Shortcuts
+            <h3 className="flex items-center gap-1.5 text-caption-1 font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              <Keyboard size={12} /> Keyboard
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
-              {SHORTCUTS.map(([key, desc]) => (
-                <div key={key} className="flex items-center justify-between">
-                  <span className="text-slate-600 dark:text-stone-500">{desc}</span>
-                  <kbd className="px-1.5 py-0.5 text-[10px] font-mono rounded border border-stone-200 dark:border-stone-300 dark:border-slate-700 bg-slate-50 dark:bg-charcoal/60 text-slate-700 dark:text-slate-300">
+            <div className="rounded-lg border border-border overflow-hidden">
+              {SHORTCUTS.map(([key, desc], i) => (
+                <div
+                  key={key}
+                  className={`flex items-center justify-between px-3 py-1.5 text-caption-1 ${i < SHORTCUTS.length - 1 ? 'border-b border-border' : ''}`}
+                >
+                  <span className="text-foreground/80">{desc}</span>
+                  <kbd className="px-1.5 py-0.5 text-caption-2 font-mono rounded border border-border bg-muted text-foreground/80">
                     {key}
                   </kbd>
                 </div>
@@ -102,33 +106,31 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
           </section>
 
           <section>
-            <h3 className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-stone-500 uppercase tracking-widest mb-2">
+            <h3 className="flex items-center gap-1.5 text-caption-1 font-semibold text-muted-foreground uppercase tracking-wider mb-2">
               <BookOpen size={12} /> Resources
             </h3>
-            <div className="space-y-1.5 text-xs">
-              <a
-                href="https://github.com/ZachDreamZ"
-                target="_blank"
-                rel="noreferrer noopener"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.electron.openExternal('https://github.com/ZachDreamZ');
-                }}
-                className="flex items-center justify-between p-2.5 rounded-md border border-stone-200 dark:border-stone-300 dark:border-slate-700 hover:border-stone-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
-              >
-                <span className="flex items-center gap-2">
-                  <GithubIcon className="w-3.5 h-3.5 text-stone-500" />
-                  <span className="font-medium text-ink dark:text-slate-200">Author on GitHub</span>
-                </span>
-                <ExternalLink size={12} className="text-stone-500 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors" />
-              </a>
-            </div>
+            <a
+              href="https://github.com/ZachDreamZ"
+              target="_blank"
+              rel="noreferrer noopener"
+              onClick={(e) => {
+                e.preventDefault();
+                window.electron.openExternal('https://github.com/ZachDreamZ');
+              }}
+              className="flex items-center justify-between p-2.5 rounded-lg border border-border hover:bg-accent transition-colors duration-200 ease-out group"
+            >
+              <span className="flex items-center gap-2 text-body font-medium">
+                <GithubIcon size={16} className="text-foreground" />
+                Author on GitHub
+              </span>
+              <ExternalLink size={12} className="text-muted-foreground group-hover:text-foreground transition-colors" />
+            </a>
           </section>
         </div>
 
-        <div className="px-5 py-3 border-t border-stone-200 dark:border-slate-800 text-[10px] text-stone-500 font-mono flex items-center justify-between">
+        <div className="h-9 px-4 border-t border-border text-caption-2 text-muted-foreground font-mono flex items-center justify-between">
           <span>MIT License</span>
-          <span>v0.1.5</span>
+          <span className="tabular-nums">v0.1.5</span>
         </div>
       </div>
     </div>

@@ -3,23 +3,24 @@ import remarkGfm from 'remark-gfm';
 import type { ReactNode } from 'react';
 import welcomeContent from '../content/welcome.md?raw';
 import logo from '../assets/logo.svg';
-import { FolderOpen } from 'lucide-react';
+import { FolderOpen } from './Icons';
 
 export const Welcome: React.FC = () => {
   return (
-    <div className="flex-1 h-full overflow-y-auto bg-paper dark:bg-obsidian">
-      <div className="max-w-3xl mx-auto px-8 md:px-16 py-12 markdown-body">
-        <div className="flex items-start justify-between gap-4 mb-8">
+    <div className="flex-1 h-full overflow-y-auto bg-background">
+      <div className="max-w-3xl mx-auto px-12 py-16">
+        <div className="flex items-start justify-between gap-6 mb-10">
           <img
             src={logo}
             alt="NexusViewer"
-            width={72}
-            height={72}
-            className="w-18 h-18 shrink-0 drop-shadow-[0_0_12px_rgba(0,242,255,0.25)]"
+            width={64}
+            height={64}
+            className="w-16 h-16 shrink-0"
+            style={{ filter: 'drop-shadow(0 0 16px var(--color-neon-cyan-glow))' }}
           />
           <button
             onClick={() => window.electron.chooseFolder()}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-md bg-neon-teal/10 text-neon-teal border border-neon-teal/30 hover:bg-neon-teal/20 transition-colors text-sm font-medium shrink-0"
+            className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200 ease-out text-body font-medium shadow-sm"
           >
             <FolderOpen size={14} />
             Open Folder
@@ -29,47 +30,51 @@ export const Welcome: React.FC = () => {
           remarkPlugins={[remarkGfm]}
           components={{
             h1: ({ children }) => (
-              <h1 className="text-5xl font-bold mb-8 mt-2 pb-4 border-b border-stone-200 dark:border-slate-800">
+              <h1 className="text-large-title font-bold mb-8 pb-4 border-b border-border">
                 {children}
               </h1>
             ),
             h2: ({ children }) => (
-              <h2 className="text-3xl font-semibold mb-6 mt-10">{children}</h2>
+              <h2 className="text-title-1 font-semibold mb-4 mt-10 flex items-center gap-2 first:mt-0">
+                {children}
+              </h2>
             ),
             h3: ({ children }) => (
-              <h3 className="text-2xl font-medium mb-4 mt-8">{children}</h3>
+              <h3 className="text-title-2 font-semibold mb-3 mt-8 flex items-center gap-2 first:mt-0">
+                {children}
+              </h3>
             ),
             table: ({ children }) => (
-              <div className="overflow-x-auto my-8">
-                <table className="w-full border-collapse text-sm border border-stone-200 dark:border-slate-800">{children}</table>
+              <div className="overflow-x-auto my-8 rounded-lg border border-border overflow-hidden">
+                <table className="w-full border-collapse text-body">{children}</table>
               </div>
             ),
             th: ({ children }) => (
-              <th className="border border-stone-200 dark:border-slate-800 px-4 py-3 bg-paper-soft dark:bg-slate-900/50 font-bold text-left text-slate-600 dark:text-stone-500 uppercase tracking-tight">
+              <th className="border-b border-border px-4 py-2.5 bg-muted text-left text-caption-1 font-semibold text-foreground uppercase tracking-wider">
                 {children}
               </th>
             ),
             td: ({ children }) => (
-              <td className="border border-stone-200 dark:border-slate-800 px-4 py-3 leading-relaxed">
+              <td className="border-b border-border px-4 py-3 text-body">
                 {children}
               </td>
             ),
             blockquote: ({ children }) => (
-              <blockquote className="border-l-4 border-clay dark:border-stone-300 dark:border-slate-700 pl-6 py-1 italic text-slate-600 dark:text-stone-500 my-8 text-lg leading-relaxed">
+              <blockquote className="border-l-2 border-primary pl-4 py-1 italic text-muted-foreground my-6">
                 {children}
               </blockquote>
             ),
-            ul: ({ children }) => <ul className="list-disc pl-6 mb-6 space-y-3">{children}</ul>,
-            ol: ({ children }) => <ol className="list-decimal pl-6 mb-6 space-y-3">{children}</ol>,
+            ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-2 marker:text-muted-foreground">{children}</ul>,
+            ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-2 marker:text-muted-foreground">{children}</ol>,
             li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-            p: ({ children }) => <p className="mb-6 leading-relaxed text-slate-700 dark:text-slate-300">{children}</p>,
+            p: ({ children }) => <p className="mb-4 leading-relaxed">{children}</p>,
             code({ inline, className, children, ...props }: { inline?: boolean; className?: string; children?: ReactNode } & React.HTMLAttributes<HTMLElement>) {
               const match = /language-(\w+)/.exec(className || '');
               const text = String(children);
               if (!inline && match) {
                 return (
                   <code
-                    className="block bg-paper-soft dark:bg-slate-900/50 border border-stone-200 dark:border-slate-800 p-4 rounded-lg text-sm font-mono my-4 overflow-x-auto whitespace-pre"
+                    className="block bg-muted border border-border p-4 rounded-lg text-body font-mono my-4 overflow-x-auto whitespace-pre"
                     {...props}
                   >
                     {text}
@@ -77,12 +82,12 @@ export const Welcome: React.FC = () => {
                 );
               }
               return (
-                <code className="bg-paper-soft dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm font-mono text-clay dark:text-neonTeal" {...props}>
+                <code className="bg-muted text-foreground px-1.5 py-0.5 rounded text-callout font-mono" {...props}>
                   {children}
                 </code>
               );
             },
-            hr: () => <hr className="my-12 border-stone-200 dark:border-slate-800" />,
+            hr: () => <hr className="my-10 border-border" />,
           }}
         >
           {welcomeContent}

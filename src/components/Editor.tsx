@@ -53,13 +53,18 @@ export const Editor: React.FC<EditorProps> = ({ content = '', onChange, onScroll
   };
 
   return (
-    <div className="flex flex-col h-full border-r border-stone-200 dark:border-slate-800 w-1/2 bg-paper dark:bg-obsidian-lighter">
-      <div className="flex items-center justify-between px-4 py-2.5 bg-paper-soft dark:bg-slate-900/30 border-b border-stone-200 dark:border-slate-800">
+    <section
+      className="flex flex-col h-full flex-1 min-w-0 border-r border-border bg-background"
+      aria-label="Source editor"
+    >
+      <div className="flex items-center justify-between h-9 px-4 border-b border-border">
         <div className="flex items-center gap-2">
-          <FileText size={14} className="text-stone-400" />
-          <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">Source</span>
+          <FileText size={12} className="text-muted-foreground" />
+          <span className="text-caption-1 font-semibold text-muted-foreground uppercase tracking-wider">
+            Source
+          </span>
         </div>
-        <div className="text-[10px] text-stone-400 font-mono">
+        <div className="text-caption-2 text-muted-foreground font-mono tabular-nums">
           {(content || '').split('\n').length} lines
         </div>
       </div>
@@ -75,12 +80,12 @@ export const Editor: React.FC<EditorProps> = ({ content = '', onChange, onScroll
         ref={setTextareaRef}
         onScroll={onScroll}
         onKeyDown={handleKeyDown}
-        className="editor-soft flex-1 p-8 bg-transparent text-ink dark:text-slate-300 font-mono text-sm resize-none outline-none focus:ring-0 leading-relaxed"
+        className="editor-soft flex-1 px-8 py-6 bg-transparent text-foreground placeholder:text-muted-foreground/60 resize-none outline-none focus:outline-none leading-relaxed"
         value={content}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Begin your transmission..."
         spellCheck={false}
       />
-    </div>
+    </section>
   );
 };

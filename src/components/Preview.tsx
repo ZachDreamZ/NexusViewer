@@ -42,8 +42,8 @@ function resolveAssetUrl(src: string, currentFile: string | null): string {
     const baseDir = netPath.includes('/') ? netPath.slice(0, netPath.lastIndexOf('/')) : '';
     return prefix + collapsePath((baseDir ? baseDir + '/' : '') + src);
   }
-  const combined = (dir ? dir + '/' : '') + src;
-  return 'nexus-asset:///' + collapsePath(combined).replace(/^[\\/]+/, '');
+  if (src.startsWith('/')) return 'nexus-asset://' + src;
+  return 'nexus-asset:///' + collapsePath((dir + '/' + src).replace(/^\/+/, '')).replace(/^[\\/]+/, '');
 }
 
 function collapsePath(input: string): string {
@@ -67,18 +67,18 @@ const HighlightedCode: React.FC<{ inline?: boolean; className?: string; children
   const copyKey = match ? `${match[1]}:${codeText.slice(0, 40)}` : `inline:${codeText.slice(0, 40)}`;
   return !inline && match ? (
     <div className="relative group my-6">
-      <div className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-all duration-200">
+      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
         <button
           onClick={() => {
             navigator.clipboard.writeText(codeText.trim());
             setCopiedKey(copyKey);
             setTimeout(() => setCopiedKey(null), 2000);
           }}
-          className="p-2 bg-slate-800/80 backdrop-blur-sm text-stone-500 hover:text-white rounded-lg transition-colors"
+          className="p-1.5 rounded-md bg-foreground/80 backdrop-blur-sm text-background/80 hover:text-background transition-colors"
           title="Copy code"
           aria-label="Copy code to clipboard"
         >
-          {copiedKey === copyKey ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+          {copiedKey === copyKey ? <Check size={12} className="text-success" /> : <Copy size={12} />}
         </button>
       </div>
       <SyntaxHighlighter
@@ -86,14 +86,14 @@ const HighlightedCode: React.FC<{ inline?: boolean; className?: string; children
         style={oneDark as any}
         language={match[1]}
         PreTag="div"
-        className="rounded-xl !mt-0 border border-stone-200 dark:border-slate-800 shadow-sm"
+        className="rounded-lg !mt-0 border border-border shadow-sm overflow-hidden"
         {...props}
       >
         {codeText.trim()}
       </SyntaxHighlighter>
     </div>
   ) : (
-    <code className="bg-paper-soft dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm font-mono text-clay dark:text-neonTeal" {...props}>
+    <code className="bg-muted text-foreground px-1.5 py-0.5 rounded text-callout font-mono" {...props}>
       {children}
     </code>
   );
@@ -101,11 +101,16 @@ const HighlightedCode: React.FC<{ inline?: boolean; className?: string; children
 
 export const Preview: React.FC<PreviewProps> = ({ content = '', currentFile = null }) => {
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-paper-soft dark:bg-slate-900/30 border-b border-stone-200 dark:border-slate-800">
-        <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">Transmission</span>
+    <section
+      className="flex flex-col h-full flex-1 min-w-0 bg-background"
+      aria-label="Markdown preview"
+    >
+      <div className="flex items-center gap-2 h-9 px-4 border-b border-border">
+        <span className="text-caption-1 font-semibold text-muted-foreground uppercase tracking-wider">
+          Preview
+        </span>
       </div>
-      <div className="flex-1 overflow-y-auto p-8 md:p-16 bg-paper dark:bg-obsidian">
+      <div className="flex-1 overflow-y-auto px-12 py-10 bg-background">
         <div className="max-w-3xl mx-auto markdown-body">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
@@ -115,39 +120,50 @@ export const Preview: React.FC<PreviewProps> = ({ content = '', currentFile = nu
                 <img
                   src={resolveAssetUrl(src ?? '', currentFile)}
                   alt={alt ?? ''}
-                  className="max-w-full h-auto rounded-lg my-6 shadow-sm"
+                  className="max-w-full h-auto rounded-lg my-6 shadow-sm border border-border"
                   loading="lazy"
                 />
               ),
               table: ({ children }) => (
-                <div className="overflow-x-auto my-8">
-                  <table className="w-full border-collapse text-sm border border-stone-200 dark:border-slate-800">{children}</table>
+                <div className="overflow-x-auto my-8 rounded-lg border border-border overflow-hidden">
+                  <table className="w-full border-collapse text-body">{children}</table>
                 </div>
               ),
               th: ({ children }) => (
-                <th className="border border-stone-200 dark:border-slate-800 px-4 py-3 bg-paper-soft dark:bg-slate-900/50 font-bold text-left text-slate-600 dark:text-stone-500 uppercase tracking-tight">{children}</th>
+                <th className="border-b border-border px-4 py-2.5 bg-muted text-left text-caption-1 font-semibold text-foreground uppercase tracking-wider">
+                  {children}
+                </th>
               ),
               td: ({ children }) => (
-                <td className="border border-stone-200 dark:border-slate-800 px-4 py-3 leading-relaxed">{children}</td>
+                <td className="border-b border-border px-4 py-3 text-body">
+                  {children}
+                </td>
               ),
               blockquote: ({ children }) => (
-                <blockquote className="border-l-4 border-clay dark:border-stone-300 dark:border-slate-700 pl-6 py-1 italic text-slate-600 dark:text-stone-500 my-8 text-lg leading-relaxed">
+                <blockquote className="border-l-2 border-primary pl-4 py-1 italic text-muted-foreground my-6">
                   {children}
                 </blockquote>
               ),
-              h1: ({ children }) => <h1 className="text-5xl font-bold mb-8 mt-12 pb-4 border-b border-stone-200 dark:border-slate-800">{children}</h1>,
-              h2: ({ children }) => <h2 className="text-3xl font-semibold mb-6 mt-10">{children}</h2>,
-              h3: ({ children }) => <h3 className="text-2xl font-medium mb-4 mt-8">{children}</h3>,
-              ul: ({ children }) => <ul className="list-disc pl-6 mb-6 space-y-3">{children}</ul>,
-              ol: ({ children }) => <ol className="list-decimal pl-6 mb-6 space-y-3">{children}</ol>,
+              h1: ({ children }) => <h1 className="text-large-title font-bold mb-6 mt-10 pb-3 border-b border-border first:mt-0">{children}</h1>,
+              h2: ({ children }) => <h2 className="text-title-1 font-semibold mb-4 mt-8 first:mt-0">{children}</h2>,
+              h3: ({ children }) => <h3 className="text-title-2 font-semibold mb-3 mt-6 first:mt-0">{children}</h3>,
+              h4: ({ children }) => <h4 className="text-title-3 font-semibold mb-2 mt-6 first:mt-0">{children}</h4>,
+              ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-2 marker:text-muted-foreground">{children}</ul>,
+              ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-2 marker:text-muted-foreground">{children}</ol>,
               li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-              p: ({ children }) => <p className="mb-6 leading-relaxed text-slate-700 dark:text-slate-300">{children}</p>,
+              p: ({ children }) => <p className="mb-4 leading-relaxed">{children}</p>,
+              hr: () => <hr className="my-8 border-border" />,
+              a: ({ children, href }) => (
+                <a href={href} className="text-primary underline underline-offset-2 hover:opacity-80" target="_blank" rel="noreferrer noopener">
+                  {children}
+                </a>
+              ),
             }}
           >
             {content}
           </ReactMarkdown>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

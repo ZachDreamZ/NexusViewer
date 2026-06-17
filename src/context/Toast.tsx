@@ -18,17 +18,17 @@ const ICONS: Record<ToastVariant, React.ComponentType<{ size?: number; className
 };
 
 const VARIANT_CLASSES: Record<ToastVariant, string> = {
-  info: 'border-stone-200 dark:border-stone-300 dark:border-slate-700 bg-paper dark:bg-charcoal text-ink dark:text-slate-200',
-  success: 'border-emerald-200 dark:border-emerald-800/50 bg-paper dark:bg-charcoal text-emerald-700 dark:text-emerald-300',
-  error: 'border-rose-200 dark:border-rose-800/50 bg-paper dark:bg-charcoal text-rose-700 dark:text-rose-300',
-  warning: 'border-amber-200 dark:border-amber-800/50 bg-paper dark:bg-charcoal text-amber-700 dark:text-amber-300',
+  info: 'border-border bg-popover text-popover-foreground',
+  success: 'border-success/30 bg-popover text-popover-foreground',
+  error: 'border-destructive/30 bg-popover text-popover-foreground',
+  warning: 'border-warning/30 bg-popover text-popover-foreground',
 };
 
 const ICON_CLASSES: Record<ToastVariant, string> = {
-  info: 'text-stone-500',
-  success: 'text-emerald-500',
-  error: 'text-rose-500',
-  warning: 'text-amber-500',
+  info: 'text-muted-foreground',
+  success: 'text-success',
+  error: 'text-destructive',
+  warning: 'text-warning',
 };
 
 const AUTO_DISMISS_MS = 3500;
@@ -44,7 +44,9 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const show = useCallback<ToastContextValue['show']>((message, variant = 'info', action) => {
     counterRef.current += 1;
     const id = counterRef.current;
-    setToasts(prev => [...prev, { id, message, variant, action }]);
+    const item: ToastItem = { id, message, variant };
+    if (action) item.action = action;
+    setToasts(prev => [...prev, item]);
   }, []);
 
   const value = useMemo<ToastContextValue>(() => ({ show }), [show]);
@@ -71,28 +73,28 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           return (
             <div
               key={t.id}
-              className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg min-w-72 max-w-md ${VARIANT_CLASSES[t.variant]}`}
+              className={`pointer-events-auto flex items-center gap-3 px-3.5 py-2.5 rounded-lg border shadow-lg shadow-foreground/10 min-w-72 max-w-md animate-in slide-in-from-bottom-2 duration-200 ${VARIANT_CLASSES[t.variant]}`}
               role={t.variant === 'error' ? 'alert' : 'status'}
             >
-              <Icon size={16} className={`mt-0.5 shrink-0 ${ICON_CLASSES[t.variant]}`} />
-              <span className="text-sm leading-relaxed flex-1">{t.message}</span>
+              <Icon size={14} className={`mt-0.5 shrink-0 ${ICON_CLASSES[t.variant]}`} />
+              <span className="text-body leading-relaxed flex-1">{t.message}</span>
               {t.action && (
                 <button
                   onClick={() => {
                     t.action!.onClick();
                     dismiss(t.id);
                   }}
-                  className="shrink-0 px-2 py-0.5 text-xs font-medium rounded border border-current/30 hover:bg-current/10 transition-colors"
+                  className="shrink-0 h-6 px-2 text-caption-1 font-medium rounded-md border border-border hover:bg-accent transition-colors duration-200 ease-out"
                 >
                   {t.action.label}
                 </button>
               )}
               <button
                 onClick={() => dismiss(t.id)}
-                className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
+                className="shrink-0 inline-flex items-center justify-center h-6 w-6 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200 ease-out"
                 aria-label="Dismiss notification"
               >
-                <X size={14} />
+                <X size={12} />
               </button>
             </div>
           );

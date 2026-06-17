@@ -26,6 +26,14 @@ Create new components as separate files. Ensure a clear separation between prese
 - Use consistent naming conventions (PascalCase for components).
 - Implement proper TypeScript interfaces for props.
 - Any IPC action that touches the filesystem MUST resolve through the project's sandboxed root (see `electron/main.cjs:resolveSafePath`).
+- **Design tokens**: use the shadcn-style semantic utilities (`bg-background`, `text-foreground`, `border-border`, `bg-sidebar`, `bg-card`, `text-muted-foreground`, `ring-ring`, `bg-popover`). The full token catalog lives in `src/index.css` and the design contract is in `.opencode/skills/apple-modern-ui/SKILL.md`.
+- **Typography**: body copy is `text-body` (13px). Use `text-caption-1` (12px), `text-callout` (14px), `text-subhead` (15px), `text-title-3` (16px), `text-title-2` (18px), `text-title-1` (22px), `text-large-title` (26px).
+- **Spacing**: 4, 8, 12, 16, 20, 24, 32 — never use 11, 13, 15, 17, 19.
+- **Motion**: `transition-colors duration-200 ease-out` for hover/active. Modal in uses `animate-in fade-in duration-200` + child `zoom-in-95 duration-200`.
+- **Frosted glass**: surfaces like the title bar and sidebar use the `frosted` utility class which applies `backdrop-filter: blur(20px) saturate(180%)`.
+- **Radius**: cards `rounded-lg` (10px), buttons `rounded-md` (8px), modals `rounded-xl` (14px).
+- **Don't use `transition-all`** — only transition the properties that should change.
+- **Buttons are icon-only when their meaning is universal** (auto-save, save, theme, help). Text labels stay for actions that need disambiguation (New, Open).
 
 ## Verification
 - `npm run build` must pass (TypeScript and Vite both clean).
@@ -56,23 +64,26 @@ Create new components as separate files. Ensure a clear separation between prese
   - `Ctrl/Cmd+K` — insert markdown link template
   - `Escape` (while About modal is open) — close it
 - Editor-formatting shortcuts require the editor textarea to be focused.
-- Header is intentionally compact: New + Open Folder, a divider, then icon-only Auto-save / Save / Theme / Help buttons. The "Unsaved Changes" indicator was removed from the header because the StatusBar already shows save state.
+- **Header is a frosted-glass title bar** (`h-12` with the `frosted` utility). Icon-only buttons for universal actions (auto-save, save, theme, help), text labels for the primary actions (New, Open) and the primary CTA is filled with `bg-primary text-primary-foreground`.
 - Subscribes to watcher events via `window.electron.onWatcherEvent`:
   - `change` on open file: auto-reloads if clean, toasts [Reload] action if dirty
   - `unlink` on open file: closes file
   - `add`/`unlink`/`addDir`/`unlinkDir`: refreshes file tree via `treeLoadId` counter-based remount key
 - Passes `currentFile` (file path) to Preview for local image resolution.
-- Header logo: imports `../assets/logo.svg` and renders it next to the "NEXUSVIEWER" wordmark.
+- Header logo: imports `../assets/logo.svg` and renders it next to the "NexusViewer" wordmark, with a cyan drop-shadow via `filter: drop-shadow(0 0 6px var(--color-neon-cyan-glow))`.
 - `wrapSelection(before, after)` correctly positions the cursor: empty selection places it between `before` and `after`; selected text places end-of-selection at `end + before.length + after.length` (just past the closing tag).
 
 #### FileTree.tsx
-- Recursive file system navigation component
+- macOS-style sidebar (`w-60`) with the `frosted` utility class for the translucent background
+- Recursive file system navigation
 - Lazy-loads folder contents on click (no effect-based load)
 - Supports opening/closing directories
 - Integrates with `window.electron.readDir` IPC
 - Uses a `key={treeLoadId}` remount to sync with project changes (Layout bumps `treeLoadId` only after the tree is loaded, so the FileTree's internal state picks up the populated initialNodes, not the empty array)
 - **Right-click context menu** for files and directories: "Open" (files only), "Reveal in folder" / "Open in file manager" via `window.electron.showItemInFolder` and `window.electron.openPath`, **"Rename"** via `window.electron.renamePath` (uses `window.prompt`), **"Delete"** via `window.electron.deletePath` (uses `window.confirm`)
 - Context menu dismisses on outside click, `Escape` key, or action
+- Item rows: `py-1` (4px), selected = `bg-sidebar-accent`, hover = `bg-sidebar-accent/60`, depth = `paddingLeft = depth * 12 + 12`
+- Uses `lucide-react` icons at 12–13px
 
 #### FileContext.tsx
 - Provider component for file state (filePath, content, isDirty, autoSave)
@@ -95,6 +106,8 @@ Create new components as separate files. Ensure a clear separation between prese
 - Receives `ref` as a regular prop (React 19 pattern, no `forwardRef`)
 - Handles user input changes and scroll events
 - Tracks line count via `split('\n')`
+- Wraps the textarea in a `section` with `aria-label="Source editor"` for screen-reader navigation
+- Uses the `.editor-soft` class (`caret-color: var(--color-foreground); font-family: var(--font-mono); font-size: 0.8125rem; line-height: 1.6`)
 
 #### Preview.tsx
 - Rendered Markdown preview component
@@ -102,12 +115,21 @@ Create new components as separate files. Ensure a clear separation between prese
 - Accepts `currentFile` prop — used to resolve relative local image paths to `nexus-asset://` URLs
 - Custom `img` component override rewrites local src paths (relative, absolute, and `file://`) to `nexus-asset://` for sandboxed access
 - Implements Prism syntax highlighting with `oneDark` style; copy-to-clipboard keyed on `language:text[:40]`
+- Wraps everything in a `section` with `aria-label="Markdown preview"` for screen-reader navigation
+- `resolveAssetUrl` collapses `.`/`..` segments and emits absolute `nexus-asset://` paths; uses `where(.dark, .dark *)` semantics for the dark variant through shadcn-style tokens
 
 #### Frontmatter.tsx
 - YAML frontmatter parser and display
 - Shows document metadata (title, author, date, tags)
 - Collapsible panel
 - `value` typed as `unknown`; renders objects via `JSON.stringify`
+- Header shows field count: `{N} {field|fields}`
+
+#### Icons.tsx
+- Shared SVG icon components used by Layout, AboutModal, Welcome, StatusBar
+- Each accepts `size` (number) and standard SVG props
+- Exposes `GithubIcon`, `Keyboard`, `BookOpen`, `FolderOpen` — all the icons that `lucide-react` doesn't ship or that we want to control the SVG path of
+- Uses `viewBox="0 0 24 24"` and `fill="currentColor"` so the icon inherits text color
 
 #### Welcome.tsx
 - First-run / no-project landing view that fills the editor+preview area

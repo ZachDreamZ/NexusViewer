@@ -36,6 +36,9 @@ const buildTree = (entries: Array<{ name: string; path: string; isDirectory: boo
       return a.name.localeCompare(b.name);
     });
 
+const cn = (...classes: Array<string | false | null | undefined>) =>
+  classes.filter(Boolean).join(' ');
+
 export const Layout: React.FC<LayoutProps> = ({ darkMode, setDarkMode }) => {
   const { state, setContent, setFile, saveFile, closeFile, autoSaveEnabled, setAutoSaveEnabled } = useFile();
   const toast = useToast();
@@ -283,119 +286,135 @@ export const Layout: React.FC<LayoutProps> = ({ darkMode, setDarkMode }) => {
   }, [handleSave, handleChooseFolder, handleNewFile, wrapSelection, insertAtCursor]);
 
   return (
-    <div className="flex flex-col h-screen transition-colors duration-300">
-      <div className="flex flex-col h-full bg-paper text-ink dark:bg-charcoal dark:text-slate-300">
-
-        {/* Header */}
-        <header className="flex items-center justify-between px-4 py-2 border-b border-stone-200 dark:border-slate-800 bg-paper dark:bg-charcoal z-10 gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <img
-              src={logo}
-              alt=""
-              width={24}
-              height={24}
-              className="w-6 h-6 shrink-0 drop-shadow-[0_0_4px_rgba(0,242,255,0.35)]"
-            />
-            <h1 className="text-sm font-bold tracking-tighter shrink-0">NEXUSVIEWER</h1>
-            {projectRoot && (
-              <span className="text-[10px] text-stone-500 font-mono truncate min-w-0">
+    <div className="flex flex-col h-screen">
+      {/* Title Bar — Apple-style frosted glass */}
+      <header
+        className="frosted flex items-center justify-between h-12 px-4 border-b border-sidebar-border shrink-0 z-10"
+        role="banner"
+      >
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <img
+            src={logo}
+            alt=""
+            width={22}
+            height={22}
+            className="w-[22px] h-[22px] shrink-0"
+            style={{ filter: 'drop-shadow(0 0 6px var(--color-neon-cyan-glow))' }}
+          />
+          <h1 className="text-callout font-semibold tracking-tight shrink-0 text-foreground">
+            NexusViewer
+          </h1>
+          {projectRoot && (
+            <>
+              <span className="text-muted-foreground/50 text-caption-1 shrink-0">·</span>
+              <span className="text-caption-1 text-muted-foreground font-mono truncate min-w-0">
                 {projectRoot}
               </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              onClick={handleNewFile}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-stone-600 dark:text-slate-300 hover:bg-paper-soft dark:hover:bg-slate-800 transition-colors text-xs font-medium"
-              title="New file (Ctrl+N)"
-            >
-              <FilePlus size={14} /> New
-            </button>
-            <button
-              onClick={handleChooseFolder}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-paper-soft dark:bg-slate-800 text-stone-700 dark:text-slate-200 hover:bg-paper-strong dark:hover:bg-slate-700 transition-colors text-xs font-medium"
-              title="Open folder (Ctrl+O)"
-            >
-              <FolderOpen size={14} /> Open Folder
-            </button>
-
-            <div className="w-px h-5 bg-paper-strong dark:bg-slate-800 mx-1" />
-
-            <button
-              onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-colors text-xs font-medium ${
-                autoSaveEnabled
-                  ? 'bg-neon-teal/10 text-neon-teal'
-                  : 'text-stone-600 dark:text-slate-300 hover:bg-paper-soft dark:hover:bg-slate-800'
-              }`}
-              title={autoSaveEnabled ? 'Disable auto-save' : 'Enable auto-save'}
-              aria-pressed={autoSaveEnabled}
-            >
-              <Zap size={14} className={autoSaveEnabled ? 'fill-current' : ''} />
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={!state.filePath}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-stone-600 dark:text-slate-300 hover:bg-paper-soft dark:hover:bg-slate-800 transition-colors text-xs font-medium disabled:opacity-30 disabled:cursor-not-allowed"
-              title="Save (Ctrl+S)"
-            >
-              <Save size={14} />
-            </button>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-1.5 rounded-md text-stone-500 hover:bg-paper-soft dark:hover:bg-slate-800 transition-colors"
-              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-            <button
-              onClick={() => setAboutOpen(true)}
-              className="p-1.5 rounded-md text-stone-500 hover:bg-paper-soft dark:hover:bg-slate-800 transition-colors"
-              aria-label="Open about and shortcuts"
-              title="About & shortcuts"
-            >
-              <HelpCircle size={16} />
-            </button>
-          </div>
-        </header>
-
-        <div className="flex flex-1 overflow-hidden">
-          <FileTree
-            key={treeLoadId}
-            initialNodes={nodes}
-            selectedFile={selectedFile}
-            onFileSelect={openFile}
-          />
-
-          {state.filePath ? (
-            <div className="flex flex-col flex-1 overflow-hidden">
-              <Frontmatter content={state.content} />
-
-              <main className="flex flex-1 overflow-hidden">
-                <Editor
-                  ref={editorRef}
-                  content={state.content}
-                  onChange={setContent}
-                  onScroll={handleEditorScroll}
-                />
-                <div
-                  ref={previewRef}
-                  className="flex-1 h-full overflow-hidden"
-                >
-                  <Preview content={state.content} currentFile={state.filePath} />
-                </div>
-              </main>
-            </div>
-          ) : (
-            <Welcome />
+            </>
           )}
         </div>
 
-        <StatusBar />
-        <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
+        <div className="flex items-center gap-1 shrink-0">
+          {state.isDirty && (
+            <div className="flex items-center gap-1.5 px-2 text-caption-1 text-primary">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <span>Unsaved</span>
+            </div>
+          )}
+
+          <button
+            onClick={handleNewFile}
+            className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-md text-body font-medium text-foreground/80 hover:bg-accent hover:text-accent-foreground transition-colors duration-200 ease-out"
+            title="New file (Ctrl+N)"
+          >
+            <FilePlus size={14} />
+            <span>New</span>
+          </button>
+          <button
+            onClick={handleChooseFolder}
+            className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-md text-body font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200 ease-out shadow-sm"
+            title="Open folder (Ctrl+O)"
+          >
+            <FolderOpen size={14} />
+            <span>Open</span>
+          </button>
+
+          <div className="w-px h-5 bg-border mx-1" />
+
+          <button
+            onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
+            className={cn(
+              "inline-flex items-center justify-center h-8 w-8 rounded-md transition-colors duration-200 ease-out",
+              autoSaveEnabled
+                ? "bg-neon-cyan-soft text-primary"
+                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            )}
+            title={autoSaveEnabled ? 'Auto-save on' : 'Auto-save off'}
+            aria-pressed={autoSaveEnabled}
+          >
+            <Zap size={14} className={autoSaveEnabled ? 'fill-current' : ''} />
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!state.filePath}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200 ease-out disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Save (Ctrl+S)"
+          >
+            <Save size={14} />
+          </button>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200 ease-out"
+            aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {darkMode ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
+          <button
+            onClick={() => setAboutOpen(true)}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200 ease-out"
+            aria-label="Open about and shortcuts"
+            title="About & shortcuts"
+          >
+            <HelpCircle size={14} />
+          </button>
+        </div>
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        <FileTree
+          key={treeLoadId}
+          initialNodes={nodes}
+          selectedFile={selectedFile}
+          onFileSelect={openFile}
+        />
+
+        {state.filePath ? (
+          <div className="flex flex-col flex-1 overflow-hidden">
+            <Frontmatter content={state.content} />
+
+            <main className="flex flex-1 overflow-hidden">
+              <Editor
+                ref={editorRef}
+                content={state.content}
+                onChange={setContent}
+                onScroll={handleEditorScroll}
+              />
+              <div
+                ref={previewRef}
+                className="flex-1 h-full overflow-hidden"
+              >
+                <Preview content={state.content} currentFile={state.filePath} />
+              </div>
+            </main>
+          </div>
+        ) : (
+          <Welcome />
+        )}
       </div>
+
+      <StatusBar />
+      <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
     </div>
   );
 };

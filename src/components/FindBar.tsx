@@ -15,6 +15,9 @@ interface Match {
   end: number;
 }
 
+const cn = (...classes: Array<string | false | null | undefined>) =>
+  classes.filter(Boolean).join(' ');
+
 export const FindBar: React.FC<FindBarProps> = ({
   textareaRef,
   content,
@@ -101,8 +104,8 @@ export const FindBar: React.FC<FindBarProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="border-b border-stone-200 dark:border-slate-800 bg-paper-soft dark:bg-slate-900/30">
-      <div className="flex items-center gap-2 px-3 py-2">
+    <div className="border-b border-border bg-card/60 backdrop-blur-sm">
+      <div className="flex items-center gap-2 px-3 h-9">
         <input
           ref={searchInputRef}
           type="text"
@@ -122,46 +125,49 @@ export const FindBar: React.FC<FindBarProps> = ({
             }
           }}
           placeholder="Find"
-          className="flex-1 px-2 py-1 text-xs bg-paper dark:bg-charcoal border border-stone-200 dark:border-stone-300 dark:border-slate-700 rounded outline-none focus:border-slate-400 dark:focus:border-slate-500"
+          className="flex-1 h-7 px-2 text-caption-1 bg-background border border-border rounded-md outline-none focus:border-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 transition-colors duration-200 ease-out"
           aria-label="Find"
         />
-        <span className="text-[10px] text-stone-500 font-mono w-16 text-center">
+        <span className="text-caption-2 text-muted-foreground font-mono tabular-nums w-16 text-center">
           {query ? (matches.length === 0 ? 'No results' : `${matchIndex + 1} / ${matches.length}`) : ''}
         </span>
         <button
           onClick={() => setCaseSensitive(!caseSensitive)}
-          className={`p-1.5 rounded ${caseSensitive ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200' : 'text-stone-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+          className={cn(
+            "inline-flex items-center justify-center h-7 w-7 rounded-md transition-colors duration-200 ease-out",
+            caseSensitive ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          )}
           title="Case sensitive"
           aria-label="Toggle case sensitivity"
           aria-pressed={caseSensitive}
         >
-          <CaseSensitive size={14} />
+          <CaseSensitive size={12} />
         </button>
         <button
           onClick={goPrev}
           disabled={matches.length === 0}
-          className="p-1.5 rounded text-stone-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200 ease-out"
           title="Previous match (Shift+Enter)"
           aria-label="Previous match"
         >
-          <ArrowUp size={14} />
+          <ArrowUp size={12} />
         </button>
         <button
           onClick={goNext}
           disabled={matches.length === 0}
-          className="p-1.5 rounded text-stone-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200 ease-out"
           title="Next match (Enter)"
           aria-label="Next match"
         >
-          <ArrowDown size={14} />
+          <ArrowDown size={12} />
         </button>
         <button
           onClick={onClose}
-          className="p-1.5 rounded text-stone-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          className="inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200 ease-out"
           title="Close (Escape)"
           aria-label="Close find bar"
         >
-          <X size={14} />
+          <X size={12} />
         </button>
       </div>
       {isReplaceOpen && (
@@ -180,20 +186,20 @@ export const FindBar: React.FC<FindBarProps> = ({
               }
             }}
             placeholder="Replace with"
-            className="flex-1 px-2 py-1 text-xs bg-paper dark:bg-charcoal border border-stone-200 dark:border-stone-300 dark:border-slate-700 rounded outline-none focus:border-slate-400 dark:focus:border-slate-500"
+            className="flex-1 h-7 px-2 text-caption-1 bg-background border border-border rounded-md outline-none focus:border-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 transition-colors duration-200 ease-out"
             aria-label="Replace with"
           />
           <button
             onClick={replaceCurrent}
             disabled={matches.length === 0}
-            className="px-2 py-1 text-[11px] rounded text-slate-500 dark:text-stone-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="h-7 px-2 text-caption-1 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200 ease-out"
           >
             Replace
           </button>
           <button
             onClick={replaceAll}
             disabled={matches.length === 0}
-            className="px-2 py-1 text-[11px] rounded text-slate-500 dark:text-stone-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="h-7 px-2 text-caption-1 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200 ease-out"
           >
             All
           </button>
