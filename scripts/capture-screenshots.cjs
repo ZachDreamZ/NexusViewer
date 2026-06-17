@@ -43,29 +43,27 @@ async function captureScene(scene) {
   });
 
   await win.loadFile(INDEX);
-  // Wait for React to mount and apply the initial theme.
-  await win.webContents.executeJavaScript('new Promise(r => setTimeout(r, 1500));');
+  await new Promise(r => setTimeout(r, 1500));
 
-  // For the dark-mode scenes, just keep whatever's there. For the light
-  // variants, swap the class. Either way, persist the choice.
   const wantDark = !isLight;
+  // Return a Promise from the injected script so we wait for the rAFs
+  // before continuing. Without this, the class toggle races the
+  // capturePage call and the screenshot is taken before the layout flush.
   await win.webContents.executeJavaScript(`
-    if (${JSON.stringify(wantDark)}) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('nexusviewer.theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('nexusviewer.theme', 'light');
-    }
+    (async () => {
+      if (${JSON.stringify(wantDark)}) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('nexusviewer.theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('nexusviewer.theme', 'light');
+      }
+      void document.documentElement.offsetWidth;
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    })();
   `);
-  // Force a layout flush, then wait for two paint frames so the browser
-  // actually applies the new class before we screenshot. Add a longer
-  // settle for the `transition-colors` declarations on the surfaces.
-  await win.webContents.executeJavaScript(`
-    void document.documentElement.offsetWidth;
-    new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  `);
-  await new Promise(r => setTimeout(r, 800));
+  // Wait for oklch color transitions to fully settle (~1s end-to-end in Chrome).
+  await new Promise(r => setTimeout(r, 1500));
 
   if (baseScene === 'about') {
     await win.webContents.executeJavaScript(`
@@ -75,7 +73,7 @@ async function captureScene(scene) {
         else console.warn('help button not found');
       })();
     `);
-    await win.webContents.executeJavaScript('new Promise(r => setTimeout(r, 500));');
+    await new Promise(r => setTimeout(r, 500));
   }
 
   const image = await win.webContents.capturePage();
@@ -99,8 +97,8 @@ app.whenReady().then(async () => {
       let p = decodeURIComponent(url.pathname);
       if (process.platform === 'win32' && /^\/[A-Za-z]:/.test(p)) p = p.slice(1);
       return net.fetch(pathToFileURL(p).toString());
-    } catch (e) {
-      return new Response(`err: ${e.message}`, { status: 404 });
+    } catch (error) {
+      return new Response(`not found: ${error.message}`, { status: 404 });
     }
   });
 
@@ -110,8 +108,17 @@ app.whenReady().then(async () => {
     if (!distStat) {
       throw new Error(`dist/index.html not found at ${INDEX}. Run \`npm run build\` first.`);
     }
+    // The Chromium file:// loader keeps the dist file handle open even
+    // after `win.destroy()`, so a second `loadFile(INDEX)` in the same
+    // process fails with ERR_FAILED. Run each scene in its own process
+    // and wait synchronously for it to exit so handles are released.
     for (const scene of scenes) {
-      await captureScene(scene);
+      const { spawnSync } = require('child_process');
+      const electronExe = process.execPath;
+      const result = spawnSync(electronExe, [__filename, scene], { stdio: 'inherit' });
+      if (result.status !== 0) {
+        throw new Error(`Capture of ${scene} failed with exit code ${result.status}`);
+      }
     }
     app.quit();
   } catch (e) {
