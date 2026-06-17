@@ -48,30 +48,12 @@ Create new components as separate files. Ensure a clear separation between prese
 ### Core Components
 
 #### Layout.tsx
-- Main orchestrator for the split-pane interface
-- Handles synchronized scrolling between Editor and Preview
-- Manages global state via FileContext
-- Implements theme switching and auto/manual save
-- Owns the **Open Folder** flow (calls `window.electron.chooseFolder`)
-- Owns the **New File** flow (calls `window.electron.createFile` with incrementing `untitled-N.md` names)
-- Renders an empty-state when no project root is set (the `Welcome` view doubles as onboarding)
-- Hosts the **global keyboard shortcut handler** (document-level `keydown` listener):
-  - `Ctrl/Cmd+N` — new file
-  - `Ctrl/Cmd+S` — save current file
-  - `Ctrl/Cmd+O` — open folder
-  - `Ctrl/Cmd+B` — bold (wraps editor selection with `**`)
-  - `Ctrl/Cmd+I` — italic (wraps editor selection with `*`)
-  - `Ctrl/Cmd+K` — insert markdown link template
-  - `Escape` (while About modal is open) — close it
-- Editor-formatting shortcuts require the editor textarea to be focused.
-- **Header is a frosted-glass title bar** (`h-12` with the `frosted` utility). Icon-only buttons for universal actions (auto-save, save, theme, help), text labels for the primary actions (New, Open) and the primary CTA is filled with `bg-primary text-primary-foreground`.
-- Subscribes to watcher events via `window.electron.onWatcherEvent`:
-  - `change` on open file: auto-reloads if clean, toasts [Reload] action if dirty
-  - `unlink` on open file: closes file
-  - `add`/`unlink`/`addDir`/`unlinkDir`: refreshes file tree via `treeLoadId` counter-based remount key
-- Passes `currentFile` (file path) to Preview for local image resolution.
-- Header logo: imports `../assets/logo.svg` and renders it next to the "NexusViewer" wordmark, with a cyan drop-shadow via `filter: drop-shadow(0 0 6px var(--color-neon-cyan-glow))`.
-- `wrapSelection(before, after)` correctly positions the cursor: empty selection places it between `before` and `after`; selected text places end-of-selection at `end + before.length + after.length` (just past the closing tag).
+- Top-level orchestrator. Composes the title bar (extracted as `TitleBar`), the FileTree, the editor + preview main area, the StatusBar, and the AboutModal.
+- Pulls **all** project state through the `useProject()` hook and all editor selection through `useEditor(ref, onChange)`.
+- Subscribes to global keyboard shortcuts through `useShortcuts` and file-system events through `useWatcher`. The watcher uses a refs-of-handlers pattern internally so re-renders don't re-subscribe.
+- The title bar (`TitleBar`) is a sub-component in the same file. It owns: dark-mode toggle, auto-save toggle, new / open / save / help buttons, project path label.
+- Header buttons: New + Open Folder are text+icon; Auto-save / Save / Theme / Help are icon-only (32×32). The Open Folder button is the only `bg-primary` CTA in the header.
+- The `HeaderButton` sub-component takes `iconOnly` (sizing), `variant: 'default' | 'primary'` (coloring), `active` (auto-save toggle), and optional `aria-pressed`.
 
 #### FileTree.tsx
 - macOS-style sidebar (`w-60`) with the `frosted` utility class for the translucent background
@@ -112,11 +94,9 @@ Create new components as separate files. Ensure a clear separation between prese
 #### Preview.tsx
 - Rendered Markdown preview component
 - Uses `react-markdown` with GFM support
+- Delegates all `components` overrides to `createMarkdownComponents(currentFile)` in `src/lib/markdown.tsx` — Preview doesn't own any inline component overrides
 - Accepts `currentFile` prop — used to resolve relative local image paths to `nexus-asset://` URLs
-- Custom `img` component override rewrites local src paths (relative, absolute, and `file://`) to `nexus-asset://` for sandboxed access
-- Implements Prism syntax highlighting with `oneDark` style; copy-to-clipboard keyed on `language:text[:40]`
 - Wraps everything in a `section` with `aria-label="Markdown preview"` for screen-reader navigation
-- `resolveAssetUrl` collapses `.`/`..` segments and emits absolute `nexus-asset://` paths; uses `where(.dark, .dark *)` semantics for the dark variant through shadcn-style tokens
 
 #### Frontmatter.tsx
 - YAML frontmatter parser and display
@@ -125,17 +105,45 @@ Create new components as separate files. Ensure a clear separation between prese
 - `value` typed as `unknown`; renders objects via `JSON.stringify`
 - Header shows field count: `{N} {field|fields}`
 
+#### Logo.tsx
+- Renders `src/assets/logo.svg` with the brand-cyan drop-shadow.
+- Two sizes: `size={22}` (default, header + about modal) and `size={64} large` (welcome screen).
+- Centralizes the `drop-shadow(0 0 Npx var(--color-neon-cyan-glow))` style so the magic number lives in one place.
+
 #### Icons.tsx
 - Shared SVG icon components used by Layout, AboutModal, Welcome, StatusBar
 - Each accepts `size` (number) and standard SVG props
-- Exposes `GithubIcon`, `Keyboard`, `BookOpen`, `FolderOpen` — all the icons that `lucide-react` doesn't ship or that we want to control the SVG path of
+- Exposes `GithubIcon`, `Keyboard`, `BookOpen`, `FolderOpen` — all the icons that `lucide-react` doesn't ship or that we want control over the SVG path of
 - Uses `viewBox="0 0 24 24"` and `fill="currentColor"` so the icon inherits text color
+
+#### useShortcuts hook (in src/hooks/)
+- Declarative keyboard shortcut registry. Each entry is `{ key, meta?, shift?, alt?, inEditorOnly?, description, handler }`.
+- The Layout component owns the registry; this file is the implementation.
+
+#### useProject hook (in src/hooks/)
+- All project-root / file-tree / selected-file state lives here.
+- Returns the public API used by Layout (`setProjectRoot`, `openFile`, `closeFile`, `chooseFolder`, `newFile`, `refreshTree`) and the display state (`projectRoot`, `nodes`, `selectedFile`, `treeLoadId`).
+- The `newFile` flow loops `untitled-N.md` up to 1000 attempts to find a free name.
+
+#### useWatcher hook (in src/hooks/)
+- Subscribes to `window.electron.onWatcherEvent` once and routes:
+  - `change` on the open file → reload (or toast [Reload] if dirty)
+  - `unlink` on the open file → close
+  - tree-shape events → refresh
+- Uses a refs-of-handlers pattern internally so consumer re-renders don't re-bind the IPC subscription.
+
+#### useEditor hook (in src/hooks/)
+- Wraps the editor textarea ref and exposes `wrapSelection(before, after)`, `insertAtCursor(text, offset)`, `getElement()`.
+- Used by Layout to implement Ctrl+B / Ctrl+I / Ctrl+K.
+
+#### useTheme hook (in src/hooks/)
+- Single source of truth for dark/light mode. Reads `nexusviewer.theme` from `localStorage`, persists on change, toggles `.dark` on `<documentElement>`.
 
 #### Welcome.tsx
 - First-run / no-project landing view that fills the editor+preview area
 - Renders `src/content/welcome.md` via `react-markdown` + `remark-gfm`
-- Shows the NexusViewer logo (imported from `../assets/logo.svg`) and an **Open Folder** CTA in the top-right; the CTA calls `window.electron.chooseFolder()` directly so users have one-click onboarding
-- Uses NexusViewer typography (matches `Preview.tsx`) but omits Prism syntax highlighting and the code-copy button since the welcome is read-only
+- Shows the NexusViewer logo (via `<Logo size={64} large />`) and an **Open Folder** CTA in the top-right
+- Uses `createMarkdownComponents(null, { withSyntaxHighlight: false })` — the welcome view skips Prism to keep things lightweight (read-only, no copy buttons)
 - Mounted in `Layout` when no file is open
 
 #### FindBar.tsx

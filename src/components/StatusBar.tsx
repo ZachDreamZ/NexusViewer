@@ -1,5 +1,6 @@
 import { GithubIcon } from './Icons';
 import { useFile } from '../context/useFile';
+import { cn } from '../lib/utils';
 
 export const StatusBar: React.FC = () => {
   const { state } = useFile();
@@ -17,11 +18,10 @@ export const StatusBar: React.FC = () => {
     >
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
-          <div
-            className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ease-out ${
-              state.isDirty ? 'bg-warning' : 'bg-success'
-            }`}
-          />
+          <div className={cn(
+            'w-1.5 h-1.5 rounded-full transition-colors duration-200 ease-out',
+            state.isDirty ? 'bg-warning' : 'bg-success'
+          )} />
           <span>{state.isDirty ? 'Unsaved' : 'Saved'}</span>
         </div>
         <div className="flex items-center gap-1.5 tabular-nums">
@@ -50,5 +50,3 @@ export const StatusBar: React.FC = () => {
     </footer>
   );
 };
-
-StatusBar.displayName = 'StatusBar';

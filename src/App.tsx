@@ -1,25 +1,14 @@
-import { useState, useEffect } from 'react';
 import { FileProvider } from './context/FileContext';
 import { ToastProvider } from './context/Toast';
 import { Layout } from './components/Layout';
+import { useTheme } from './hooks/useTheme';
 
 function App() {
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('nexusviewer.theme');
-    return saved ? saved === 'dark' : true;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('nexusviewer.theme', darkMode ? 'dark' : 'light');
-  }, [darkMode]);
-
+  const [darkMode, setDarkMode] = useTheme();
   return (
     <FileProvider>
       <ToastProvider>
-        <Layout
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
-        />
+        <Layout darkMode={darkMode} setDarkMode={setDarkMode} />
       </ToastProvider>
     </FileProvider>
   );

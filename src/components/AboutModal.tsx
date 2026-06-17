@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { X, ExternalLink } from 'lucide-react';
 import { GithubIcon, Keyboard, BookOpen } from './Icons';
-import logo from '../assets/logo.svg';
+import { Logo } from './Logo';
+import { cn } from '../lib/utils';
 
 interface AboutModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const SHORTCUTS: Array<[string, string]> = [
+const SHORTCUTS: ReadonlyArray<readonly [string, string]> = [
   ['⌘ / Ctrl + N', 'New file'],
   ['⌘ / Ctrl + O', 'Open folder'],
   ['⌘ / Ctrl + S', 'Save'],
@@ -25,7 +26,6 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
   useEffect(() => {
     if (!open) return;
     closeRef.current?.focus();
-
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
@@ -52,14 +52,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
       >
         <div className="flex items-center justify-between h-12 px-4 border-b border-border">
           <div className="flex items-center gap-2.5">
-            <img
-              src={logo}
-              alt=""
-              width={22}
-              height={22}
-              className="w-[22px] h-[22px]"
-              style={{ filter: 'drop-shadow(0 0 6px var(--color-neon-cyan-glow))' }}
-            />
+            <Logo size={22} />
             <div>
               <h2 id="about-modal-title" className="text-callout font-semibold tracking-tight leading-none">
                 NexusViewer
@@ -94,7 +87,10 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
               {SHORTCUTS.map(([key, desc], i) => (
                 <div
                   key={key}
-                  className={`flex items-center justify-between px-3 py-1.5 text-caption-1 ${i < SHORTCUTS.length - 1 ? 'border-b border-border' : ''}`}
+                  className={cn(
+                    'flex items-center justify-between px-3 py-1.5 text-caption-1',
+                    i < SHORTCUTS.length - 1 && 'border-b border-border'
+                  )}
                 >
                   <span className="text-foreground/80">{desc}</span>
                   <kbd className="px-1.5 py-0.5 text-caption-2 font-mono rounded border border-border bg-muted text-foreground/80">

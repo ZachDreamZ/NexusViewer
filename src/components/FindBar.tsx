@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, CaseSensitive, X } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 interface FindBarProps {
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
@@ -14,9 +15,6 @@ interface Match {
   start: number;
   end: number;
 }
-
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ');
 
 export const FindBar: React.FC<FindBarProps> = ({
   textareaRef,

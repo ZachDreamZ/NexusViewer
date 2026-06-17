@@ -91,4 +91,6 @@ Default section order:
 - src/components: Reusable UI components.
 - src/content: Embedded markdown content (e.g. welcome screen).
 - src/context: React context modules for file state and toasts.
+- src/hooks: Reusable React hooks (project, watcher, shortcuts, theme, editor).
+- src/lib: Pure utility modules (tree, paths, markdown, cn, CodeBlock).
 

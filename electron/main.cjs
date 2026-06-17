@@ -22,11 +22,27 @@ const IGNORED_WATCH = [
   /(^|[\\/])\.mcp([\\/]|$)/,
   /(^|[\\/])\.opencode([\\/]|$)/,
   /(^|[\\/])__pycache__([\\/]|$)/,
+  /(^|[\\/])\.venv([\\/]|$)/,
   /(^|[\\/])dist([\\/]|$)/,
   /(^|[\\/])dist_electron([\\/]|$)/,
   /(^|[\\/])dist_electron_v\d+([\\/]|$)/,
-  /(^|[\\/])\.venv([\\/]|$)/,
 ];
+
+const FIND_DEFAULT_SKIP = new Set([
+  'node_modules', '.git', '.cache', '.mcp', '.opencode', '.venv', '__pycache__',
+  'dist', 'dist_electron', 'dist_electron_v2', 'dist_electron_v3', 'dist_electron_v4',
+  'dist_final', 'dist_final_test',
+]);
+
+const PROJECT_ROOT_REQUIRED = { success: false, error: 'No project root set' };
+const OUTSIDE_ROOT = { success: false, error: 'Path is outside the project root' };
+
+const isValidName = (name) => {
+  if (typeof name !== 'string' || name.length === 0) return false;
+  if (name === '.' || name === '..') return false;
+  if (name.includes('/') || name.includes('\\')) return false;
+  return true;
+};
 
 function resolveSafePath(inputPath) {
   if (!projectRoot) return null;
@@ -38,6 +54,11 @@ function resolveSafePath(inputPath) {
     return null;
   }
   return candidate;
+}
+
+function isInsideProject(safe) {
+  const normalizedRoot = path.resolve(projectRoot);
+  return safe === normalizedRoot || safe.startsWith(normalizedRoot + path.sep);
 }
 
 async function setProjectRoot(rootPath) {
@@ -95,10 +116,7 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+  mainWindow.on('closed', () => { mainWindow = null; });
 }
 
 function registerNexusAssetProtocol() {
@@ -110,9 +128,7 @@ function registerNexusAssetProtocol() {
         filePath = filePath.slice(1);
       }
       const safe = resolveSafePath(filePath);
-      if (!safe) {
-        return new Response('forbidden', { status: 403 });
-      }
+      if (!safe) return new Response('forbidden', { status: 403 });
       return net.fetch(pathToFileURL(safe).toString());
     } catch (error) {
       return new Response(`not found: ${error.message}`, { status: 404 });
@@ -120,7 +136,7 @@ function registerNexusAssetProtocol() {
   });
 }
 
-ipcMain.handle('choose-folder', async () => {
+const handleChooseFolder = async () => {
   const result = await dialog.showOpenDialog({
     properties: ['openDirectory'],
     title: 'Choose project folder',
@@ -129,21 +145,11 @@ ipcMain.handle('choose-folder', async () => {
     return { success: false, error: 'Cancelled' };
   }
   return setProjectRoot(result.filePaths[0]);
-});
+};
 
-ipcMain.handle('set-project-root', async (event, rootPath) => {
-  return setProjectRoot(rootPath);
-});
-
-ipcMain.handle('get-project-root', async () => {
-  return { success: !!projectRoot, root: projectRoot };
-});
-
-ipcMain.handle('read-file', async (event, filePath) => {
+const handleReadFile = async (event, filePath) => {
   const safe = resolveSafePath(filePath);
-  if (!safe) {
-    return { success: false, error: 'Path is outside the project root' };
-  }
+  if (!safe) return OUTSIDE_ROOT;
   try {
     const content = await fs.readFile(safe, 'utf8');
     return { success: true, content, path: safe };
@@ -151,13 +157,11 @@ ipcMain.handle('read-file', async (event, filePath) => {
     console.error('File read error:', error);
     return { success: false, error: error.message };
   }
-});
+};
 
-ipcMain.handle('write-file', async (event, { filePath, content }) => {
+const handleWriteFile = async (event, { filePath, content }) => {
   const safe = resolveSafePath(filePath);
-  if (!safe) {
-    return { success: false, error: 'Path is outside the project root' };
-  }
+  if (!safe) return OUTSIDE_ROOT;
   try {
     await fs.writeFile(safe, content, 'utf8');
     return { success: true, path: safe };
@@ -165,13 +169,11 @@ ipcMain.handle('write-file', async (event, { filePath, content }) => {
     console.error('File write error:', error);
     return { success: false, error: error.message };
   }
-});
+};
 
-ipcMain.handle('read-dir', async (event, dirPath) => {
+const handleReadDir = async (event, dirPath) => {
   const safe = resolveSafePath(dirPath);
-  if (!safe) {
-    return { success: false, error: 'Path is outside the project root' };
-  }
+  if (!safe) return OUTSIDE_ROOT;
   try {
     const entries = await fs.readdir(safe, { withFileTypes: true });
     const files = entries.map(entry => ({
@@ -184,10 +186,9 @@ ipcMain.handle('read-dir', async (event, dirPath) => {
     console.error('Directory read error:', error);
     return { success: false, error: error.message };
   }
-});
+};
 
 async function findDefaultMarkdown(startDir, maxDepth = 4) {
-  const skip = new Set(['node_modules', '.git', '.cache', 'dist', 'dist_electron', 'dist_electron_v2', 'dist_electron_v3', 'dist_electron_v4', 'dist_final', 'dist_final_test']);
   const walk = async (dir, depth) => {
     if (depth > maxDepth) return null;
     let entries;
@@ -199,107 +200,80 @@ async function findDefaultMarkdown(startDir, maxDepth = 4) {
     const readme = entries.find(e => !e.isDirectory() && e.name.toLowerCase() === 'readme.md');
     if (readme) return path.join(dir, readme.name);
     for (const entry of entries) {
-      if (entry.isDirectory() && !skip.has(entry.name) && !entry.name.startsWith('.')) {
+      if (entry.isDirectory() && !FIND_DEFAULT_SKIP.has(entry.name) && !entry.name.startsWith('.')) {
         const found = await walk(path.join(dir, entry.name), depth + 1);
         if (found) return found;
       }
     }
     const firstMd = entries.find(e => !e.isDirectory() && e.name.toLowerCase().endsWith('.md'));
-    if (firstMd) return path.join(dir, firstMd.name);
-    return null;
+    return firstMd ? path.join(dir, firstMd.name) : null;
   };
   return walk(startDir, 0);
 }
 
-ipcMain.handle('find-default-markdown', async () => {
-  if (!projectRoot) return { success: false, error: 'No project root set' };
+const handleFindDefaultMarkdown = async () => {
+  if (!projectRoot) return PROJECT_ROOT_REQUIRED;
   const found = await findDefaultMarkdown(projectRoot);
   return found ? { success: true, path: found } : { success: false };
-});
+};
 
-ipcMain.handle('show-item-in-folder', async (event, filePath) => {
+const handleShowItemInFolder = async (event, filePath) => {
   const safe = resolveSafePath(filePath);
-  if (!safe) {
-    return { success: false, error: 'Path is outside the project root' };
-  }
+  if (!safe) return OUTSIDE_ROOT;
   shell.showItemInFolder(safe);
   return { success: true };
-});
+};
 
-ipcMain.handle('open-path', async (event, filePath) => {
+const handleOpenPath = async (event, filePath) => {
   const safe = resolveSafePath(filePath);
-  if (!safe) {
-    return { success: false, error: 'Path is outside the project root' };
-  }
+  if (!safe) return OUTSIDE_ROOT;
   const err = await shell.openPath(safe);
   return err ? { success: false, error: err } : { success: true };
-});
+};
 
-ipcMain.handle('open-external', async (event, url) => {
+const handleOpenExternal = async (event, url) => {
   if (typeof url !== 'string' || !/^https?:\/\//i.test(url)) {
     return { success: false, error: 'Only http(s) URLs are allowed' };
   }
   await shell.openExternal(url);
   return { success: true };
-});
+};
 
-ipcMain.handle('create-file', async (event, { name, content = '' }) => {
-  if (!projectRoot) {
-    return { success: false, error: 'No project root set' };
-  }
-  if (typeof name !== 'string' || name.length === 0 || name.includes('/') || name.includes('\\') || name === '.' || name === '..') {
-    return { success: false, error: 'Invalid file name' };
-  }
+const handleCreateFile = async (event, { name, content = '' }) => {
+  if (!projectRoot) return PROJECT_ROOT_REQUIRED;
+  if (!isValidName(name)) return { success: false, error: 'Invalid file name' };
   const safe = path.resolve(projectRoot, name);
-  const normalizedRoot = path.resolve(projectRoot);
-  if (!safe.startsWith(normalizedRoot + path.sep) && safe !== normalizedRoot) {
-    return { success: false, error: 'Path is outside the project root' };
-  }
+  if (!isInsideProject(safe)) return OUTSIDE_ROOT;
   try {
     const existing = await fs.stat(safe).catch(() => null);
-    if (existing) {
-      return { success: false, error: 'File already exists' };
-    }
+    if (existing) return { success: false, error: 'File already exists' };
     await fs.writeFile(safe, content, 'utf8');
     return { success: true, path: safe };
   } catch (error) {
     return { success: false, error: error.message };
   }
-});
+};
 
-ipcMain.handle('rename-path', async (event, { oldPath, newName }) => {
+const handleRenamePath = async (event, { oldPath, newName }) => {
   const safeOld = resolveSafePath(oldPath);
-  if (!safeOld) {
-    return { success: false, error: 'Path is outside the project root' };
-  }
-  if (typeof newName !== 'string' || newName.length === 0 || newName.includes('/') || newName.includes('\\') || newName === '.' || newName === '..') {
-    return { success: false, error: 'Invalid file name' };
-  }
+  if (!safeOld) return OUTSIDE_ROOT;
+  if (!isValidName(newName)) return { success: false, error: 'Invalid file name' };
   const safeNew = path.resolve(path.dirname(safeOld), newName);
-  const normalizedRoot = path.resolve(projectRoot);
-  if (!safeNew.startsWith(normalizedRoot + path.sep) && safeNew !== normalizedRoot) {
-    return { success: false, error: 'Path is outside the project root' };
-  }
-  if (safeOld === safeNew) {
-    return { success: true, path: safeNew };
-  }
+  if (!isInsideProject(safeNew)) return OUTSIDE_ROOT;
+  if (safeOld === safeNew) return { success: true, path: safeNew };
   try {
     const existing = await fs.stat(safeNew).catch(() => null);
-    if (existing) {
-      return { success: false, error: 'Target already exists' };
-    }
+    if (existing) return { success: false, error: 'Target already exists' };
     await fs.rename(safeOld, safeNew);
     return { success: true, path: safeNew };
   } catch (error) {
     return { success: false, error: error.message };
   }
-});
+};
 
-ipcMain.handle('delete-path', async (event, { targetPath }) => {
+const handleDeletePath = async (event, { targetPath }) => {
   const safe = resolveSafePath(targetPath);
-  if (!safe) {
-    return { success: false, error: 'Path is outside the project root' };
-  }
+  if (!safe) return OUTSIDE_ROOT;
   if (safe === path.resolve(projectRoot)) {
     return { success: false, error: 'Cannot delete the project root' };
   }
@@ -309,25 +283,40 @@ ipcMain.handle('delete-path', async (event, { targetPath }) => {
   } catch (error) {
     return { success: false, error: error.message };
   }
-});
+};
+
+const ipcHandlers = {
+  'choose-folder': handleChooseFolder,
+  'set-project-root': (_event, rootPath) => setProjectRoot(rootPath),
+  'get-project-root': () => ({ success: !!projectRoot, root: projectRoot }),
+  'read-file': handleReadFile,
+  'write-file': handleWriteFile,
+  'read-dir': handleReadDir,
+  'find-default-markdown': handleFindDefaultMarkdown,
+  'show-item-in-folder': handleShowItemInFolder,
+  'open-path': handleOpenPath,
+  'open-external': handleOpenExternal,
+  'create-file': handleCreateFile,
+  'rename-path': handleRenamePath,
+  'delete-path': handleDeletePath,
+};
+
+const registerIpcHandlers = () => {
+  for (const [channel, handler] of Object.entries(ipcHandlers)) {
+    ipcMain.handle(channel, handler);
+  }
+};
 
 app.whenReady().then(() => {
   registerNexusAssetProtocol();
+  registerIpcHandlers();
   createWindow();
-
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
 app.on('window-all-closed', () => {
-  if (watcher) {
-    watcher.close();
-    watcher = null;
-  }
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  if (watcher) { watcher.close(); watcher = null; }
+  if (process.platform !== 'darwin') app.quit();
 });

@@ -33,16 +33,14 @@ export const Frontmatter: React.FC<FrontmatterProps> = ({ content = '' }) => {
         className="w-full flex items-center justify-between h-9 px-4 hover:bg-accent transition-colors duration-200 ease-out group"
       >
         <div className="flex items-center gap-1.5">
-          {isOpen ? (
-            <ChevronUp size={12} className="text-muted-foreground" />
-          ) : (
-            <ChevronDown size={12} className="text-muted-foreground" />
-          )}
+          {isOpen
+            ? <ChevronUp size={12} className="text-muted-foreground" />
+            : <ChevronDown size={12} className="text-muted-foreground" />}
           <span className="text-caption-1 font-semibold text-muted-foreground uppercase tracking-wider">
             Metadata
           </span>
           <span className="text-caption-2 text-muted-foreground/60 ml-1">
-            {Object.keys(data).length} {Object.keys(data).length === 1 ? 'field' : 'fields'}
+            {`${Object.keys(data).length} ${Object.keys(data).length === 1 ? 'field' : 'fields'}`}
           </span>
         </div>
         <Info size={11} className="text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />

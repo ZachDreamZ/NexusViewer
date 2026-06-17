@@ -1,12 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Folder, FileText, ChevronRight, ChevronDown, Pencil, Trash2 } from 'lucide-react';
-
-interface FileNode {
-  name: string;
-  path: string;
-  isDirectory: boolean;
-  children?: FileNode[];
-}
+import { updateTreeNode, type FileNode } from '../lib/tree';
+import { cn } from '../lib/utils';
 
 interface FileTreeProps {
   initialNodes: FileNode[];
@@ -22,73 +17,57 @@ interface ContextMenuState {
   isDirectory: boolean;
 }
 
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ');
-
 const FileTreeNode: React.FC<{
   node: FileNode;
   onFileSelect: (path: string) => void;
   selectedFile: string | null;
   depth: number;
-  onLoadChildren: (node: FileNode) => Promise<void>;
+  onLoadChildren: (node: FileNode) => void;
   onContextMenu: (e: React.MouseEvent, node: FileNode) => void;
 }> = ({ node, onFileSelect, selectedFile, depth, onLoadChildren, onContextMenu }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const loadStartedRef = useRef(false);
-
   const isSelected = selectedFile === node.path;
 
-  const handleExpand = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!node.isDirectory) return;
-
+    if (!node.isDirectory) {
+      onFileSelect(node.path);
+      return;
+    }
     if (!isOpen && !node.children && !loadStartedRef.current) {
       loadStartedRef.current = true;
       setIsLoading(true);
-      onLoadChildren(node)
-        .catch(() => { /* logged in caller */ })
-        .finally(() => setIsLoading(false));
+      onLoadChildren(node);
     }
-    setIsOpen(!isOpen);
-  };
-
-  const handleFileClick = () => {
-    if (!node.isDirectory) {
-      onFileSelect(node.path);
-    }
+    setIsOpen((v) => !v);
   };
 
   return (
     <div>
       <button
-        onClick={node.isDirectory ? handleExpand : handleFileClick}
+        onClick={handleClick}
         onContextMenu={(e) => onContextMenu(e, node)}
         disabled={isLoading}
         className={cn(
-          "w-full flex items-center gap-2 py-1 text-body transition-colors duration-200 ease-out disabled:opacity-50",
+          'w-full flex items-center gap-2 py-1 text-body transition-colors duration-200 ease-out disabled:opacity-50',
           isSelected
-            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60"
+            ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+            : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60'
         )}
-        style={{ paddingLeft: `${(depth * 12) + 12}px`, paddingRight: '12px' }}
+        style={{ paddingLeft: `${depth * 12 + 12}px`, paddingRight: '12px' }}
       >
         <span className="w-3.5 flex items-center justify-center shrink-0">
-          {node.isDirectory ? (
-            isLoading ? (
-              <span className="w-1 h-1 rounded-full bg-muted-foreground/40 animate-pulse" />
-            ) : isOpen ? (
-              <ChevronDown size={12} className="text-muted-foreground" />
-            ) : (
-              <ChevronRight size={12} className="text-muted-foreground" />
-            )
-          ) : null}
+          {node.isDirectory && (isLoading
+            ? <span className="w-1 h-1 rounded-full bg-muted-foreground/40 animate-pulse" />
+            : isOpen
+              ? <ChevronDown size={12} className="text-muted-foreground" />
+              : <ChevronRight size={12} className="text-muted-foreground" />)}
         </span>
-        {node.isDirectory ? (
-          <Folder size={13} className={cn("shrink-0", isSelected ? "text-primary" : "text-muted-foreground")} />
-        ) : (
-          <FileText size={13} className={cn("shrink-0", isSelected ? "text-primary" : "text-muted-foreground")} />
-        )}
+        {node.isDirectory
+          ? <Folder size={13} className={cn('shrink-0', isSelected ? 'text-primary' : 'text-muted-foreground')} />
+          : <FileText size={13} className={cn('shrink-0', isSelected ? 'text-primary' : 'text-muted-foreground')} />}
         <span className="truncate text-body">{node.name}</span>
       </button>
       {isOpen && node.isDirectory && node.children && (
@@ -141,15 +120,10 @@ export const FileTree: React.FC<FileTreeProps> = ({ initialNodes, onFileSelect, 
     setMenu({ x, y, path: node.path, name: node.name, isDirectory: node.isDirectory });
   }, []);
 
-  const loadChildren = useCallback(async (parentNode: FileNode): Promise<void> => {
+  const loadChildren = useCallback((parentNode: FileNode) => {
     if (!parentNode.path) return;
-
-    try {
-      const result = await window.electron.readDir(parentNode.path);
-      if (!result.success || !result.files) {
-        return;
-      }
-
+    void window.electron.readDir(parentNode.path).then(result => {
+      if (!result.success || !result.files) return;
       const children: FileNode[] = result.files
         .map(entry => ({
           name: entry.name,
@@ -161,65 +135,53 @@ export const FileTree: React.FC<FileTreeProps> = ({ initialNodes, onFileSelect, 
           if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
           return a.name.localeCompare(b.name);
         });
-
-      setNodes(current => {
-        const updateNode = (nodeList: FileNode[]): FileNode[] => {
-          return nodeList.map(n => {
-            if (n.path === parentNode.path) {
-              return { ...n, children };
-            }
-            if (n.children) {
-              return { ...n, children: updateNode(n.children) };
-            }
-            return n;
-          });
-        };
-        return updateNode(current);
-      });
-    } catch (error) {
-      console.error(`Error loading children for ${parentNode.path}:`, error);
-    }
+      setNodes(current => updateTreeNode(current, parentNode.path, n => ({ ...n, children })));
+    }).catch(err => {
+      console.error(`Error loading children for ${parentNode.path}:`, err);
+    });
   }, []);
+
+  const closeMenu = useCallback(() => setMenu(null), []);
 
   const handleOpen = useCallback(() => {
     if (!menu || menu.isDirectory) return;
     onFileSelect(menu.path);
-    setMenu(null);
-  }, [menu, onFileSelect]);
+    closeMenu();
+  }, [menu, onFileSelect, closeMenu]);
 
   const handleReveal = useCallback(async () => {
     if (!menu) return;
-    setMenu(null);
-    const target = menu.isDirectory ? await window.electron.openPath(menu.path) : await window.electron.showItemInFolder(menu.path);
+    closeMenu();
+    const target = menu.isDirectory
+      ? await window.electron.openPath(menu.path)
+      : await window.electron.showItemInFolder(menu.path);
     if (!target.success) {
       console.error('Reveal failed:', target.error);
     }
-  }, [menu]);
+  }, [menu, closeMenu]);
 
   const handleRename = useCallback(async () => {
     if (!menu) return;
-    const oldPath = menu.path;
-    const oldName = menu.name;
-    setMenu(null);
+    const { path: oldPath, name: oldName } = menu;
+    closeMenu();
     const newName = window.prompt(`Rename ${oldName} to:`, oldName);
     if (!newName || newName === oldName) return;
     const result = await window.electron.renamePath({ oldPath, newName });
     if (!result.success) {
       window.alert(`Rename failed: ${result.error ?? 'unknown error'}`);
     }
-  }, [menu]);
+  }, [menu, closeMenu]);
 
   const handleDelete = useCallback(async () => {
     if (!menu) return;
-    const target = menu.path;
-    const name = menu.name;
-    setMenu(null);
+    const { path: targetPath, name } = menu;
+    closeMenu();
     if (!window.confirm(`Delete ${name}? This cannot be undone.`)) return;
-    const result = await window.electron.deletePath({ targetPath: target });
+    const result = await window.electron.deletePath({ targetPath });
     if (!result.success) {
       window.alert(`Delete failed: ${result.error ?? 'unknown error'}`);
     }
-  }, [menu]);
+  }, [menu, closeMenu]);
 
   return (
     <aside
@@ -263,42 +225,50 @@ export const FileTree: React.FC<FileTreeProps> = ({ initialNodes, onFileSelect, 
           role="menu"
         >
           {!menu.isDirectory && (
-            <button
-              onClick={handleOpen}
-              className="w-full text-left px-2.5 py-1 hover:bg-accent flex items-center gap-2 rounded-md mx-0.5"
-              role="menuitem"
-            >
-              <FileText size={13} className="text-muted-foreground" />
+            <ContextMenuItem onClick={handleOpen} icon={<FileText size={13} className="text-muted-foreground" />}>
               Open
-            </button>
+            </ContextMenuItem>
           )}
-          <button
+          <ContextMenuItem
             onClick={handleReveal}
-            className="w-full text-left px-2.5 py-1 hover:bg-accent flex items-center gap-2 rounded-md mx-0.5"
-            role="menuitem"
+            icon={<Folder size={13} className="text-muted-foreground" />}
           >
-            <Folder size={13} className="text-muted-foreground" />
             {menu.isDirectory ? 'Open in file manager' : 'Reveal in folder'}
-          </button>
+          </ContextMenuItem>
           <div className="my-1 border-t border-border" />
-          <button
-            onClick={handleRename}
-            className="w-full text-left px-2.5 py-1 hover:bg-accent flex items-center gap-2 rounded-md mx-0.5"
-            role="menuitem"
-          >
-            <Pencil size={13} className="text-muted-foreground" />
+          <ContextMenuItem onClick={handleRename} icon={<Pencil size={13} className="text-muted-foreground" />}>
             Rename
-          </button>
-          <button
+          </ContextMenuItem>
+          <ContextMenuItem
             onClick={handleDelete}
-            className="w-full text-left px-2.5 py-1 hover:bg-destructive/10 text-destructive flex items-center gap-2 rounded-md mx-0.5"
-            role="menuitem"
+            variant="destructive"
+            icon={<Trash2 size={13} />}
           >
-            <Trash2 size={13} />
             Delete
-          </button>
+          </ContextMenuItem>
         </div>
       )}
     </aside>
   );
 };
+
+const ContextMenuItem: React.FC<{
+  onClick: () => void;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  variant?: 'default' | 'destructive';
+}> = ({ onClick, icon, children, variant = 'default' }) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      'w-full text-left px-2.5 py-1 flex items-center gap-2 rounded-md mx-0.5',
+      variant === 'destructive'
+        ? 'text-destructive hover:bg-destructive/10'
+        : 'hover:bg-accent'
+    )}
+    role="menuitem"
+  >
+    {icon}
+    {children}
+  </button>
+);
