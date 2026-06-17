@@ -83,7 +83,7 @@ Default section order:
 ## Child DOX Index
 
 - .opencode/skills: Design skills (e.g. `apple-modern-ui`).
-- docs: Screenshots and long-form documentation.
+- docs: Screenshots, long-form documentation, and the **feature audit / roadmap** in `docs/FEATURE_REPORT.md` (the canonical list of P0/P1/P2 work and the current light-mode refinement plan).
 - electron: Main process, preload bridge, and custom protocol handler.
 - scripts: Developer-side Python scripts (e.g. logo generation).
 - src: Renderer source root (App, main, theme persistence).
