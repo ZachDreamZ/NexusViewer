@@ -1,5 +1,6 @@
-import type { Plugin } from 'unified';
 import type { Root } from 'mdast';
+
+type RemarkPlugin = () => (tree: Root) => void;
 
 const CALLOUT_REGEX = /^\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/i;
 
@@ -13,18 +14,19 @@ interface MdastNode {
   children?: MdastNode[];
 }
 
-const walk = function* (node: MdastNode): Generator<MdastNode> {
-  yield node;
+const collect = (node: MdastNode, type: string, out: MdastNode[]): void => {
+  if (node.type === type) out.push(node);
   if (node.children) {
-    for (const child of node.children) yield* walk(child);
+    for (const child of node.children) collect(child, type, out);
   }
 };
 
-export const remarkCallout: Plugin<[], Root> = () => {
+export const remarkCallout: RemarkPlugin = () => {
   return (tree) => {
-    for (const node of walk(tree as unknown as MdastNode)) {
-      if (node.type !== 'blockquote') continue;
+    const blockquotes: MdastNode[] = [];
+    collect(tree as unknown as MdastNode, 'blockquote', blockquotes);
 
+    for (const node of blockquotes) {
       const firstChild = node.children?.[0];
       if (!firstChild || firstChild.type !== 'paragraph') continue;
 
@@ -35,7 +37,6 @@ export const remarkCallout: Plugin<[], Root> = () => {
       if (!match) continue;
 
       const type = match[1].toUpperCase();
-
       firstInline.value = firstInline.value.replace(CALLOUT_REGEX, '');
 
       if (!firstInline.value && firstChild.children) {

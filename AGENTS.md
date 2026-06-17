@@ -88,9 +88,9 @@ Default section order:
 - scripts: Developer-side Python scripts (e.g. logo generation).
 - src: Renderer source root (App, main, theme persistence).
 - src/assets: Static assets and images.
-- src/components: Reusable UI components.
+- src/components: Reusable UI components (Layout, Editor, Preview, FileTree, FindBar, Frontmatter, AboutModal, Logo, Icons, StatusBar, Welcome, **Callout**, **Heading**, **MermaidBlock**, **Lightbox**).
 - src/content: Embedded markdown content (e.g. welcome screen).
 - src/context: React context modules for file state and toasts.
 - src/hooks: Reusable React hooks (project, watcher, shortcuts, theme, editor).
-- src/lib: Pure utility modules (tree, paths, markdown, cn, CodeBlock).
+- src/lib: Pure utility modules (tree, paths, markdown factory, cn, CodeBlock, **remarkCallout plugin**, **headings helpers**).
 

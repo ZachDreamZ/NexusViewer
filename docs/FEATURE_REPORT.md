@@ -8,18 +8,29 @@
 
 NexusViewer is currently a **strong local-first viewer with file-management and live preview** but is **missing several high-leverage features** that are now considered table stakes in the category:
 
-1. **Mermaid diagrams** and **KaTeX math** — universal in 2026 viewers.
-2. **GitHub-style callouts** (`> [!NOTE]`, `> [!WARNING]`, `> [!TIP]`) — the de-facto GFM extension.
-3. **Heading anchors** + **click-to-copy** + **scroll-to-anchor** — expected from any reader.
-4. **Image lightbox** for embedded images.
-5. **Quick Open / Command Palette** (Ctrl/Cmd+P) — Obsidian/VSC flagship UX.
-6. **Multi-tab file editing** with tabs bar.
-7. **Project-wide search** (Ctrl/Cmd+Shift+F) — currently we only find within one file.
-8. **Outline / Table of Contents** sidebar.
-9. **Print / PDF / HTML export** — Typora/Ulysses parity.
-10. **Footnotes** rendering (GFM extension; we have `remark-gfm` so it likely works — needs verification).
+### Phase 9 rendering — DONE (commit `db3ddab`)
 
-Light mode was just refined in commit `1a43216` (warm off-white). See "Light mode refinements" section for the next pass.
+1. ✅ **Mermaid diagrams** — `src/components/MermaidBlock.tsx` lazy-loads mermaid, renders any ` ```mermaid ` fence as live SVG. Theme-aware via `useTheme()`.
+2. ✅ **KaTeX math** — `remark-math` + `rehype-katex` parse `$...$` inline and `$$...$$` block math. KaTeX CSS imported in `index.css`. Color overridden via `.katex { color: var(--foreground); }`.
+3. ✅ **GitHub-style callouts** — hand-rolled remark plugin `src/lib/remarkCallout.ts` detects `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]`. `src/components/Callout.tsx` renders as a colored aside with type-specific icon.
+4. ✅ **Heading anchors** — `src/components/Heading.tsx` slugs each heading, attaches an `id`, renders a hover-revealed `#` link that copies the URL with `#anchor` to clipboard.
+5. ✅ **Image lightbox** — `src/components/Lightbox.tsx` opens on click; ←/→ navigate between images, ESC closes, backdrop click closes. Sources extracted from the raw markdown in `Preview.tsx`.
+
+### Still missing (Phase 9 remainder + Phase 10+)
+
+6. ❌ **Multi-tab editing** — single file at a time. Needs `useFile` refactor to `Map<path, FileState>`.
+7. ❌ **Quick Open / Command Palette** (Ctrl+P).
+8. ❌ **Project-wide search** (Ctrl+Shift+F).
+9. ❌ **PDF export** — `webContents.printToPDF()`.
+10. ❌ **HTML export** — serialize `<article>` with inlined CSS.
+11. ❌ **TOC / Outline sidebar** — extract h1–h6, render mini-sidebar.
+12. ❌ **Theme presets** (solarized, monokai, dracula).
+13. ❌ **Editor font toggle** (jetbrains / fira / system).
+14. ❌ **Preview font toggle** (serif / sans / mono).
+15. ❌ **Focus / typewriter mode**.
+16. ❌ **Inline rename** in file tree.
+
+Light mode was refined in commit `1a43216` (warm off-white) and again in `95368d4` (AAA contrast on body, AA on small text). See "Light mode refinements" section for details.
 
 ---
 

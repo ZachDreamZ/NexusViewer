@@ -39,6 +39,7 @@ Create new components as separate files. Ensure a clear separation between prese
 - `npm run build` must pass (TypeScript and Vite both clean).
 - `npm run lint` must pass with zero errors and zero warnings.
 - Manual smoke: open app, choose a folder, open a `.md` file, edit content, observe synchronized scroll, save (Ctrl+S), right-click file in tree → Rename/Delete, format text (Ctrl+B/I/K), find (Ctrl+F), replace (Ctrl+H), new file (Ctrl+N).
+- Manual smoke: open the welcome doc and confirm the example callouts (`> [!NOTE]` etc.) render as colored admonitions, the example math (`$E=mc^2$` and the `$$...$$` block) renders via KaTeX, the example Mermaid flowchart renders as SVG, hovering a heading reveals a `#` anchor, and clicking an image opens the Lightbox with ←/→ to navigate.
 
 ## Child DOX Index
 - src/context: React context module (`FileProvider`, `useFile`, `ToastProvider`, `useToast`).
@@ -93,9 +94,10 @@ Create new components as separate files. Ensure a clear separation between prese
 
 #### Preview.tsx
 - Rendered Markdown preview component
-- Uses `react-markdown` with GFM support
-- Delegates all `components` overrides to `createMarkdownComponents(currentFile)` in `src/lib/markdown.tsx` — Preview doesn't own any inline component overrides
+- Uses `react-markdown` with `remark-gfm`, `remark-math`, and `rehype-katex` for GFM tables, math, and Mermaid/KaTeX rendering
+- Delegates all `components` overrides to `createMarkdownComponents(currentFile, options)` in `src/lib/markdown.tsx` — Preview doesn't own any inline component overrides
 - Accepts `currentFile` prop — used to resolve relative local image paths to `nexus-asset://` URLs
+- Hosts the `<Lightbox>` state: extracts image sources from the raw markdown via regex (both `![alt](src)` and `<img>` forms), opens the lightbox at the clicked index
 - Wraps everything in a `section` with `aria-label="Markdown preview"` for screen-reader navigation
 
 #### Frontmatter.tsx
@@ -155,6 +157,30 @@ Create new components as separate files. Ensure a clear separation between prese
 - Match count displayed as `current / total`
 - Keyboard: Escape closes the bar
 - Clamps match index when content changes externally to avoid out-of-bounds access
+
+#### Callout.tsx
+- Renders GitHub-style admonitions (`> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION`).
+- The `type` prop maps to an icon (`Info` / `Lightbulb` / `Megaphone` / `AlertTriangle` / `Flame`) and a label.
+- Wraps content in `<aside data-callout-type="…">`. Color comes from `index.css` rules keyed on the same data attribute.
+- Receives children from the `blockquote` override in `lib/markdown.tsx` after `remarkCallout` has tagged the node.
+
+#### Heading.tsx
+- `Heading1`..`Heading4` — render `<h1>`..`<h4>` with a slugified `id` and a hover-revealed `#` anchor link.
+- Clicking the anchor copies the URL (with `#id`) to clipboard, updates `window.history`, and smooth-scrolls to the element.
+- The heading text is extracted in `lib/headings.ts` and passed in by `markdown.tsx`; this file only renders.
+
+#### MermaidBlock.tsx
+- Lazy-loads `mermaid` via `import('mermaid')` (cached module-level promise).
+- Calls `mermaid.initialize({ theme, securityLevel: 'strict', fontFamily: 'inherit' })` with `theme: 'dark' | 'default'` from `useTheme()`.
+- Passes custom `themeVariables` for both light and dark so diagram nodes contrast against `var(--card)`.
+- Renders to a `<div class="mermaid-block">` via `dangerouslySetInnerHTML` once `mermaid.render(id, code)` resolves.
+- Shows an inline error block if the diagram syntax is invalid; shows an "Rendering…" placeholder during the first load.
+
+#### Lightbox.tsx
+- Modal image viewer triggered by `Preview.tsx` when an `<img>` in the preview is clicked.
+- Closes on backdrop click, X button, or `Escape`. ←/→ navigate between images in the source list.
+- Caption shows the image's alt text and `index + 1 / total` when more than one image is open.
+- Listens for keys via a window event listener; cleans up on close.
 
 #### AboutModal.tsx
 - Modal opened from the header's `?` button

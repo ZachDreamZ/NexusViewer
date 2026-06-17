@@ -18,7 +18,7 @@ Agent
 
 ## Verification
 - `npm run build` must pass — the `?raw` import resolves to a string literal at compile time.
-- Open the app with no project loaded; the welcome view should render the full markdown with proper typography, tables, code blocks, and blockquotes.
+- Open the app with no project loaded; the welcome view should render the full markdown with proper typography, tables, code blocks, blockquotes, GitHub-style callouts (`> [!NOTE]` etc.), KaTeX math, and an example Mermaid diagram.
 
 ## Child DOX Index
 None

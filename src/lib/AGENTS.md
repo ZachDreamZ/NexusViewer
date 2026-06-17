@@ -31,8 +31,23 @@ Agent
 
 ### markdown.tsx
 - `createMarkdownComponents(currentFile, options?)` — returns the `components` prop for `react-markdown`. Preview passes `currentFile` for image resolution; Welcome passes `null` and `withSyntaxHighlight: false` for the read-only view.
+- `options.onImageClick(index)` — fired by the `img` override when a preview image is clicked; Preview uses it to open the Lightbox at the right index.
 - All component overrides share one place: `h1`–`h4`, `p`, `ul`, `ol`, `li`, `blockquote`, `table`, `th`, `td`, `hr`, `a`, `img`, and `code`.
 - Inline code uses `bg-muted text-foreground` (token-based, theme-aware).
+- The `code` override detects `language-mermaid` and delegates to `<MermaidBlock>`; all other languages go through `<CodeBlock>`.
+- The `blockquote` override reads `node.properties.dataCalloutType` (set by `remarkCallout`) and delegates to `<Callout>`, otherwise renders a normal blockquote.
+- Heading components are imported from `../components/Heading` so this file stays free of inline JSX component declarations (fast-refresh safe).
+
+### remarkCallout.ts
+- Remark plugin that transforms `> [!NOTE|TIP|IMPORTANT|WARNING|CAUTION]` blockquote nodes into tagged blockquotes (sets `data.hProperties.dataCalloutType`).
+- Strips the marker from the first text node and the empty paragraph if the marker was the only content.
+- Leaves ordinary blockquotes untouched.
+- Walks the mdast tree by hand (no `unist-util-visit` import) — keep this dependency-free.
+
+### headings.ts
+- `slugifyHeading(text)` — kebab-case slug for heading IDs. Strips HTML, removes punctuation, collapses whitespace/dashes.
+- `extractHeadingText(node)` — recurses into a React-node tree and concatenates all string/number leaves. Used by `markdown.tsx` to derive heading IDs from the rendered children.
+- Pure functions, no React runtime imports.
 
 ## Verification
 - `npm run build` must pass.
