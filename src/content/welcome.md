@@ -19,6 +19,11 @@ A minimal, developer-focused Markdown viewer and editor. Reads like Claude, work
 - **YAML frontmatter** — drop a `---` block at the top to surface metadata
 - **GitHub-flavored markdown** — tables, task lists, strikethrough, autolinks
 - **Syntax-highlighted code blocks** with one-click clipboard copy
+- **Mermaid diagrams** — ` ```mermaid ` blocks render as live SVG
+- **KaTeX math** — inline `$...$` and block `$$...$$` equations
+- **GitHub-style callouts** — `> [!NOTE]`, `> [!WARNING]`, `> [!TIP]`
+- **Heading anchors** — hover any heading to reveal a `#` link
+- **Image lightbox** — click any embedded image to expand, use ←/→ to navigate
 - **Project-root sandboxing** — every read/write is constrained to the chosen folder
 - **Right-click** any file in the Explorer to reveal, rename, or delete
 - **Dark / Light mode** — Obsidian dark, Ivory light, persisted across launches
@@ -44,6 +49,43 @@ tags: [markdown, nexusviewer]
 ---
 
 Your content here.
+```
+
+### Example callouts
+
+> [!NOTE]
+> Highlights information that users should take into account, even when skimming.
+
+> [!TIP]
+> Helpful advice for doing things better or more easily.
+
+> [!IMPORTANT]
+> Crucial information necessary for users to succeed.
+
+> [!WARNING]
+> Critical content demanding immediate user attention due to potential risks.
+
+> [!CAUTION]
+> Negative potential consequences of an action.
+
+### Example math
+
+Inline: the famous $E = mc^2$ ties mass and energy. The quadratic formula $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$ solves $ax^2 + bx + c = 0$.
+
+Block:
+
+$$
+\int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}
+$$
+
+### Example diagram
+
+```mermaid
+flowchart LR
+  A[Open folder] --> B[Pick a .md]
+  B --> C[Edit in left pane]
+  C --> D[Live preview]
+  D --> E[Ctrl+S to save]
 ```
 
 ---

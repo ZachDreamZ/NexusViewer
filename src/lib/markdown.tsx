@@ -1,21 +1,43 @@
 import { type ReactNode, type ComponentPropsWithoutRef } from 'react';
 import { resolveAssetUrl } from './paths';
 import { CodeBlock } from './CodeBlock';
+import { MermaidBlock } from '../components/MermaidBlock';
+import { Callout } from '../components/Callout';
+import {
+  Heading1,
+  Heading2,
+  Heading3,
+  Heading4,
+} from '../components/Heading';
+import { extractHeadingText, slugifyHeading } from './headings';
 import { cn } from './utils';
 
 export const createMarkdownComponents = (
   currentFile: string | null | undefined,
-  options: { withSyntaxHighlight?: boolean } = {},
+  options: {
+    withSyntaxHighlight?: boolean;
+    onImageClick?: (index: number) => void;
+  } = {}
 ) => {
-  const { withSyntaxHighlight = true } = options;
+  const { withSyntaxHighlight = true, onImageClick } = options;
+  let imageIndex = 0;
+
   return {
-    code({ inline, className, children, ...props }: {
+    code({
+      inline,
+      className,
+      children,
+      ...props
+    }: {
       inline?: boolean;
       className?: string;
       children?: ReactNode;
     } & ComponentPropsWithoutRef<'code'>) {
       const match = /language-(\w+)/.exec(className || '');
       const text = String(children);
+      if (!inline && match && match[1] === 'mermaid') {
+        return <MermaidBlock code={text.replace(/\n$/, '')} />;
+      }
       if (!inline && match) {
         if (withSyntaxHighlight) {
           return <CodeBlock language={match[1]} className={className}>{text}</CodeBlock>;
@@ -38,14 +60,19 @@ export const createMarkdownComponents = (
         </code>
       );
     },
-    img: ({ src, alt }: { src?: string; alt?: string }) => (
-      <img
-        src={resolveAssetUrl(src, currentFile)}
-        alt={alt ?? ''}
-        className="max-w-full h-auto rounded-lg my-6 shadow-sm border border-border"
-        loading="lazy"
-      />
-    ),
+    img: ({ src, alt }: { src?: string; alt?: string }) => {
+      const idx = imageIndex++;
+      const resolved = resolveAssetUrl(src, currentFile) ?? '';
+      return (
+        <img
+          src={resolved}
+          alt={alt ?? ''}
+          className="max-w-full h-auto rounded-lg my-6 shadow-sm border border-border cursor-zoom-in transition-transform duration-200 ease-out hover:scale-[1.01]"
+          loading="lazy"
+          onClick={() => onImageClick?.(idx)}
+        />
+      );
+    },
     a: ({ children, href }: { children?: ReactNode; href?: string }) => (
       <a
         href={href}
@@ -56,18 +83,22 @@ export const createMarkdownComponents = (
         {children}
       </a>
     ),
-    h1: ({ children }: { children?: ReactNode }) => (
-      <h1 className="text-large-title font-bold mb-6 mt-10 pb-3 border-b border-border first:mt-0">{children}</h1>
-    ),
-    h2: ({ children }: { children?: ReactNode }) => (
-      <h2 className="text-title-1 font-semibold mb-4 mt-8 first:mt-0">{children}</h2>
-    ),
-    h3: ({ children }: { children?: ReactNode }) => (
-      <h3 className="text-title-2 font-semibold mb-3 mt-6 first:mt-0">{children}</h3>
-    ),
-    h4: ({ children }: { children?: ReactNode }) => (
-      <h4 className="text-title-3 font-semibold mb-2 mt-6 first:mt-0">{children}</h4>
-    ),
+    h1: ({ children }: { children?: ReactNode }) => {
+      const text = extractHeadingText(children);
+      return <Heading1 id={text ? slugifyHeading(text) : undefined}>{children}</Heading1>;
+    },
+    h2: ({ children }: { children?: ReactNode }) => {
+      const text = extractHeadingText(children);
+      return <Heading2 id={text ? slugifyHeading(text) : undefined}>{children}</Heading2>;
+    },
+    h3: ({ children }: { children?: ReactNode }) => {
+      const text = extractHeadingText(children);
+      return <Heading3 id={text ? slugifyHeading(text) : undefined}>{children}</Heading3>;
+    },
+    h4: ({ children }: { children?: ReactNode }) => {
+      const text = extractHeadingText(children);
+      return <Heading4 id={text ? slugifyHeading(text) : undefined}>{children}</Heading4>;
+    },
     p: ({ children }: { children?: ReactNode }) => <p className="mb-4 leading-relaxed">{children}</p>,
     ul: ({ children }: { children?: ReactNode }) => (
       <ul className="list-disc pl-6 mb-4 space-y-2 marker:text-muted-foreground">{children}</ul>
@@ -76,9 +107,23 @@ export const createMarkdownComponents = (
       <ol className="list-decimal pl-6 mb-4 space-y-2 marker:text-muted-foreground">{children}</ol>
     ),
     li: ({ children }: { children?: ReactNode }) => <li className="leading-relaxed">{children}</li>,
-    blockquote: ({ children }: { children?: ReactNode }) => (
-      <blockquote className="border-l-2 border-primary pl-4 py-1 italic text-muted-foreground my-6">{children}</blockquote>
-    ),
+    blockquote: ({
+      children,
+      node,
+    }: {
+      children?: ReactNode;
+      node?: { properties?: Record<string, unknown> };
+    }) => {
+      const calloutType = node?.properties?.['dataCalloutType'] as string | undefined;
+      if (calloutType) {
+        return <Callout type={calloutType}>{children}</Callout>;
+      }
+      return (
+        <blockquote className="border-l-2 border-primary pl-4 py-1 italic text-muted-foreground my-6">
+          {children}
+        </blockquote>
+      );
+    },
     table: ({ children }: { children?: ReactNode }) => (
       <div className="overflow-x-auto my-8 rounded-lg border border-border overflow-hidden">
         <table className="w-full border-collapse text-body">{children}</table>

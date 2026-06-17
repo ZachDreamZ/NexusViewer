@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "katex/dist/katex.min.css";
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -224,4 +225,91 @@ textarea.editor-soft {
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   line-height: 1.6;
+}
+
+.markdown-body :is(h1, h2, h3, h4):hover .heading-anchor,
+.markdown-body :is(h1, h2, h3, h4):focus-within .heading-anchor {
+  opacity: 1;
+}
+
+.callout {
+  display: flex;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  margin: 1.25rem 0;
+  border-left: 4px solid var(--callout-color, var(--primary));
+  background: var(--callout-bg, var(--muted));
+  border-radius: 0 0.5rem 0.5rem 0;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.callout[data-callout-type="NOTE"] {
+  --callout-color: oklch(0.55 0.14 245);
+  --callout-bg: color-mix(in oklab, oklch(0.55 0.14 245) 8%, var(--background));
+}
+.callout[data-callout-type="TIP"] {
+  --callout-color: oklch(0.60 0.14 145);
+  --callout-bg: color-mix(in oklab, oklch(0.60 0.14 145) 8%, var(--background));
+}
+.callout[data-callout-type="IMPORTANT"] {
+  --callout-color: oklch(0.55 0.16 295);
+  --callout-bg: color-mix(in oklab, oklch(0.55 0.16 295) 8%, var(--background));
+}
+.callout[data-callout-type="WARNING"] {
+  --callout-color: oklch(0.70 0.16 75);
+  --callout-bg: color-mix(in oklab, oklch(0.70 0.16 75) 8%, var(--background));
+}
+.callout[data-callout-type="CAUTION"] {
+  --callout-color: oklch(0.55 0.20 27);
+  --callout-bg: color-mix(in oklab, oklch(0.55 0.20 27) 8%, var(--background));
+}
+
+.dark .callout[data-callout-type="NOTE"] {
+  --callout-color: oklch(0.72 0.14 245);
+  --callout-bg: color-mix(in oklab, oklch(0.72 0.14 245) 10%, var(--background));
+}
+.dark .callout[data-callout-type="TIP"] {
+  --callout-color: oklch(0.72 0.16 145);
+  --callout-bg: color-mix(in oklab, oklch(0.72 0.16 145) 10%, var(--background));
+}
+.dark .callout[data-callout-type="IMPORTANT"] {
+  --callout-color: oklch(0.70 0.18 295);
+  --callout-bg: color-mix(in oklab, oklch(0.70 0.18 295) 10%, var(--background));
+}
+.dark .callout[data-callout-type="WARNING"] {
+  --callout-color: oklch(0.78 0.16 75);
+  --callout-bg: color-mix(in oklab, oklch(0.78 0.16 75) 10%, var(--background));
+}
+.dark .callout[data-callout-type="CAUTION"] {
+  --callout-color: oklch(0.70 0.22 27);
+  --callout-bg: color-mix(in oklab, oklch(0.70 0.22 27) 10%, var(--background));
+}
+
+.callout .callout-icon {
+  color: var(--callout-color);
+}
+
+.mermaid-block svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-body .katex {
+  color: var(--foreground);
+  font-size: 1.05em;
+}
+.markdown-body .katex-display {
+  margin: 1.5em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.dark .markdown-body .katex,
+.dark .markdown-body .katex .mord,
+.dark .markdown-body .katex .mrel,
+.dark .markdown-body .katex .mopen,
+.dark .markdown-body .katex .mclose,
+.dark .markdown-body .katex .mpunct {
+  color: var(--foreground);
 }
