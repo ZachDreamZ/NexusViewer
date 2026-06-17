@@ -15,7 +15,8 @@
     "electron:build": "pwsh -Command \"Remove-Item -Recurse -Force dist_electron* -ErrorAction SilentlyContinue\" && npm run build && electron-builder",
     "electron:build:portable": "npm run build && electron-builder --win portable --config.forceCodeSigning=false",
     "electron:build:installer": "npm run build && electron-builder --win nsis --config.forceCodeSigning=false",
-    "electron:build:all": "npm run build && electron-builder --win portable nsis --config.forceCodeSigning=false"
+    "electron:build:all": "npm run build && electron-builder --win portable nsis --config.forceCodeSigning=false",
+    "setup:opencode": "node scripts/setup-opencode-skills.cjs"
   },
   "build": {
     "appId": "com.nexusviewer.markdown",

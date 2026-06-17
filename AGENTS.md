@@ -82,10 +82,30 @@ Default section order:
 
 ## Child DOX Index
 
-- .opencode/skills: Design skills (e.g. `apple-modern-ui`).
+- .opencode/skills: Local design skills (e.g. `apple-modern-ui`).
+- .opencode/vendor: Gitignored clones of third-party opencode skills/plugins referenced by opencode.json — see **OpenCode agent skills** below. Re-fetch with `npm run setup:opencode`.
 - docs: Screenshots, long-form documentation, and the **feature audit / roadmap** in `docs/FEATURE_REPORT.md` (the canonical list of P0/P1/P2 work and the current light-mode refinement plan).
 - electron: Main process, preload bridge, and custom protocol handler.
-- scripts: Developer-side Python scripts (e.g. logo generation).
+- scripts: Developer-side scripts — `generate_logo.py` (Pillow) and `setup-opencode-skills.cjs` (clone third-party opencode skills).
+
+## OpenCode agent skills (local, gitignored)
+
+The project's `opencode.json` references three skill/plugin sources on top of the local `.opencode/skills/` directory:
+
+| Source | How loaded | What it does |
+|---|---|---|
+| `shadcn/improve` (GitHub) | `skills.paths` (cloned to `.opencode/vendor/improve/`) **and** `skills.urls` (opencode fetches on demand) | On-demand `improve` skill. Audits the codebase (9 categories: correctness, security, perf, tests, tech debt, deps, DX, docs, direction) and writes self-contained `plans/*.md` specs a cheaper executor model can implement. |
+| `DietrichGebert/ponytail` (GitHub) | `skills.urls` (for commands) **and** `plugin` field pointing at `.opencode/vendor/ponytail/.opencode/plugins/ponytail.mjs` | Always-on "lazy senior dev" ruleset — before writing code, the agent stops at the first rung that holds (YAGNI → stdlib → platform → installed dep → one line → minimal code). The plugin adds `/ponytail` slash commands and per-mode (`lite`/`full`/`ultra`/`off`) intensity switching via `PONYTAIL_DEFAULT_MODE`. |
+
+Both are MIT, from well-known authors (shadcn for `shadcn-ui`, single-maintainer `DietrichGebert` for ponytail). They are **read-only** at install time — the setup script clones them, no code from them runs during `npm install`. The ponytail plugin's `.mjs` runs as an opencode server plugin during sessions, injecting the ruleset into the system prompt.
+
+Both `opencode.json` and `.opencode/` are gitignored, so a fresh clone has no skills installed. Re-fetch with:
+
+```bash
+npm run setup:opencode
+```
+
+That's `scripts/setup-opencode-skills.cjs` — a thin `git clone --depth 1` wrapper that's idempotent (skips repos that are already cloned). Restart opencode after setup so the new skills + plugin take effect.
 - src: Renderer source root (App, main, theme persistence).
 - src/assets: Static assets and images.
 - src/components: Reusable UI components (Layout, Editor, Preview, FileTree, FindBar, Frontmatter, AboutModal, Logo, Icons, StatusBar, Welcome, **Callout**, **Heading**, **MermaidBlock**, **Lightbox**).
