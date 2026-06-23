@@ -1,7 +1,7 @@
 {
   "name": "nexusviewer",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "electron/main.cjs",
   "description": "NexusViewer — a minimal, developer-focused Markdown viewer and editor.",
@@ -12,10 +12,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "electron:start": "npm run build && electron .",
-    "electron:build": "pwsh -Command \"Remove-Item -Recurse -Force dist_electron* -ErrorAction SilentlyContinue\" && npm run build && electron-builder",
+    "electron:clean": "node -e \"require('fs').readdirSync('.').filter(d=>d.startsWith('dist_electron')).forEach(d=>require('fs').rmSync(d,{recursive:true,force:true}))\"",
+    "electron:build": "npm run electron:clean && npm run build && electron-builder",
     "electron:build:portable": "npm run build && electron-builder --win portable --config.forceCodeSigning=false",
     "electron:build:installer": "npm run build && electron-builder --win nsis --config.forceCodeSigning=false",
     "electron:build:all": "npm run build && electron-builder --win portable nsis --config.forceCodeSigning=false",
+    "electron:build:linux": "npm run build && electron-builder --linux AppImage --config.forceCodeSigning=false",
     "setup:opencode": "node scripts/setup-opencode-skills.cjs"
   },
   "build": {
@@ -28,8 +30,8 @@
       "dist/**/*",
       "electron/**/*"
     ],
-    "icon": "build/icon.ico",
     "win": {
+      "icon": "build/icon.ico",
       "target": [
         {
           "target": "portable",
@@ -44,6 +46,17 @@
           ]
         }
       ]
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ],
+      "category": "Office",
+      "artifactName": "NexusViewer-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,

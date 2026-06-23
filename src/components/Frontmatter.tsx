@@ -27,7 +27,7 @@ export const Frontmatter: React.FC<FrontmatterProps> = ({ content = '' }) => {
   if (!data) return null;
 
   return (
-    <div className="border-b border-border bg-card transition-all duration-200 ease-out">
+    <div className="border-b border-border bg-card transition-colors duration-200 ease-out">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between h-9 px-4 hover:bg-accent transition-colors duration-200 ease-out group"

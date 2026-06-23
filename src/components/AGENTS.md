@@ -94,9 +94,10 @@ Create new components as separate files. Ensure a clear separation between prese
 
 #### Preview.tsx
 - Rendered Markdown preview component
-- Uses `react-markdown` with `remark-gfm`, `remark-math`, and `rehype-katex` for GFM tables, math, and Mermaid/KaTeX rendering
+- Uses `react-markdown` with `remark-gfm`, `remark-math`, `remarkCallout`, and `rehype-katex` for GFM tables, math, callouts, and Mermaid/KaTeX rendering
 - Delegates all `components` overrides to `createMarkdownComponents(currentFile, options)` in `src/lib/markdown.tsx` — Preview doesn't own any inline component overrides
 - Accepts `currentFile` prop — used to resolve relative local image paths to `nexus-asset://` URLs
+- Accepts `scrollRef` prop — Layout passes the preview scroll ref so sync-scroll targets the actual scrollable container, not the outer wrapper
 - Hosts the `<Lightbox>` state: extracts image sources from the raw markdown via regex (both `![alt](src)` and `<img>` forms), opens the lightbox at the clicked index
 - Wraps everything in a `section` with `aria-label="Markdown preview"` for screen-reader navigation
 
@@ -133,6 +134,7 @@ Create new components as separate files. Ensure a clear separation between prese
   - `unlink` on the open file → close
   - tree-shape events → refresh
 - Uses a refs-of-handlers pattern internally so consumer re-renders don't re-bind the IPC subscription.
+- Reads refs inside the callback (not at effect setup) to avoid stale closures for `selectedFile` and `isDirty`.
 
 #### useEditor hook (in src/hooks/)
 - Wraps the editor textarea ref and exposes `wrapSelection(before, after)`, `insertAtCursor(text, offset)`, `getElement()`.
@@ -143,8 +145,9 @@ Create new components as separate files. Ensure a clear separation between prese
 
 #### Welcome.tsx
 - First-run / no-project landing view that fills the editor+preview area
-- Renders `src/content/welcome.md` via `react-markdown` + `remark-gfm`
+- Renders `src/content/welcome.md` via `react-markdown` + `remark-gfm` + `remarkCallout`
 - Shows the NexusViewer logo (via `<Logo size={64} large />`) and an **Open Folder** CTA in the top-right
+- Accepts `onChooseFolder` prop — Layout passes `project.chooseFolder` so the button correctly updates React project state
 - Uses `createMarkdownComponents(null, { withSyntaxHighlight: false })` — the welcome view skips Prism to keep things lightweight (read-only, no copy buttons)
 - Mounted in `Layout` when no file is open
 
@@ -184,7 +187,7 @@ Create new components as separate files. Ensure a clear separation between prese
 
 #### AboutModal.tsx
 - Modal opened from the header's `?` button
-- Shows: app description, full keyboard shortcut reference, GitHub author link, version, license
+- Shows: app description, full keyboard shortcut reference, GitHub author link, version (read from `__APP_VERSION__` build-time constant), license
 - Closes on X click, backdrop click, or Escape key
 - Auto-focuses the close button on open for keyboard accessibility
 - Uses the `GithubIcon` component (no lucide equivalent) and the shared logo

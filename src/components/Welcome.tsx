@@ -1,11 +1,16 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { remarkCallout } from '../lib/remarkCallout';
 import welcomeContent from '../content/welcome.md?raw';
 import { createMarkdownComponents } from '../lib/markdown';
 import { Logo } from './Logo';
 import { FolderOpen } from './Icons';
 
-export const Welcome: React.FC = () => {
+interface WelcomeProps {
+  onChooseFolder?: () => void;
+}
+
+export const Welcome: React.FC<WelcomeProps> = ({ onChooseFolder }) => {
   const components = createMarkdownComponents(null, { withSyntaxHighlight: false });
   return (
     <div className="flex-1 h-full overflow-y-auto bg-background">
@@ -13,7 +18,7 @@ export const Welcome: React.FC = () => {
         <div className="flex items-start justify-between gap-6 mb-10">
           <Logo size={64} large />
           <button
-            onClick={() => window.electron.chooseFolder()}
+            onClick={onChooseFolder}
             className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200 ease-out text-body font-medium shadow-sm"
           >
             <FolderOpen size={14} />
@@ -21,7 +26,7 @@ export const Welcome: React.FC = () => {
           </button>
         </div>
         <div className="markdown-body">
-          <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+          <ReactMarkdown remarkPlugins={[remarkGfm, remarkCallout]} components={components}>
             {welcomeContent}
           </ReactMarkdown>
         </div>

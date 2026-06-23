@@ -35,25 +35,25 @@ export const useWatcher = ({
 
   useEffect(() => {
     if (!projectRoot) return;
-    const handlers = handlersRef.current;
-    const state = stateRef.current;
     const unsubscribe = window.electron.onWatcherEvent((event) => {
-      if (event.type === 'change' && event.path === state.selectedFile) {
-        if (!state.isDirty) {
-          handlers.onFileChange(event.path);
+      const { onFileChange, onFileDelete, onTreeChange } = handlersRef.current;
+      const { selectedFile: currentFile, isDirty: currentDirty } = stateRef.current;
+      if (event.type === 'change' && event.path === currentFile) {
+        if (!currentDirty) {
+          onFileChange(event.path);
         } else {
           toast.show('File changed externally', 'warning', {
             label: 'Reload',
-            onClick: () => handlers.onFileChange(event.path),
+            onClick: () => handlersRef.current.onFileChange(event.path),
           });
         }
       }
-      if (event.type === 'unlink' && event.path === state.selectedFile) {
-        handlers.onFileDelete(event.path);
+      if (event.type === 'unlink' && event.path === currentFile) {
+        onFileDelete(event.path);
         toast.show('File was deleted externally', 'info');
       }
       if (event.type === 'add' || event.type === 'unlink' || event.type === 'addDir' || event.type === 'unlinkDir') {
-        handlers.onTreeChange();
+        onTreeChange();
       }
     });
     return unsubscribe;
