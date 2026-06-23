@@ -3,12 +3,14 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { remarkCallout } from '../lib/remarkCallout';
 import { createMarkdownComponents } from '../lib/markdown';
 import { Lightbox, type LightboxImage } from './Lightbox';
 
 interface PreviewProps {
   content: string;
   currentFile: string | null;
+  scrollRef?: React.Ref<HTMLDivElement>;
 }
 
 const extractImages = (markdown: string): LightboxImage[] => {
@@ -25,7 +27,7 @@ const extractImages = (markdown: string): LightboxImage[] => {
   return images;
 };
 
-export const Preview: React.FC<PreviewProps> = ({ content = '', currentFile = null }) => {
+export const Preview: React.FC<PreviewProps> = ({ content = '', currentFile = null, scrollRef }) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -60,10 +62,10 @@ export const Preview: React.FC<PreviewProps> = ({ content = '', currentFile = nu
           Preview
         </span>
       </div>
-      <div className="flex-1 overflow-y-auto px-12 py-10 bg-background">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-12 py-10 bg-background">
         <div className="max-w-3xl mx-auto markdown-body">
           <ReactMarkdown
-            remarkPlugins={[remarkGfm, remarkMath]}
+            remarkPlugins={[remarkGfm, remarkMath, remarkCallout]}
             rehypePlugins={[rehypeKatex]}
             components={components}
           >

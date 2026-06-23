@@ -106,7 +106,8 @@ npm run setup:opencode
 ```
 
 That's `scripts/setup-opencode-skills.cjs` — a thin `git clone --depth 1` wrapper that's idempotent (skips repos that are already cloned). Restart opencode after setup so the new skills + plugin take effect.
-- src: Renderer source root (App, main, theme persistence).
+- .github/workflows: CI workflows — `build.yml` runs lint + build on every PR/push to `main`, builds Windows (.exe portable + NSIS installer) and Linux (AppImage) artifacts, and publishes them as a GitHub Release when a `v*` tag is pushed.
+- src: Renderer source root (App, main, theme persistence). `vite-env.d.ts` declares the `__APP_VERSION__` build-time constant injected by `vite.config.ts`.
 - src/assets: Static assets and images.
 - src/components: Reusable UI components (Layout, Editor, Preview, FileTree, FindBar, Frontmatter, AboutModal, Logo, Icons, StatusBar, Welcome, **Callout**, **Heading**, **MermaidBlock**, **Lightbox**).
 - src/content: Embedded markdown content (e.g. welcome screen).

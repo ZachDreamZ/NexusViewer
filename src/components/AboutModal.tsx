@@ -126,7 +126,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
 
         <div className="h-9 px-4 border-t border-border text-caption-2 text-muted-foreground font-mono flex items-center justify-between">
           <span>MIT License</span>
-          <span className="tabular-nums">v0.1.5</span>
+          <span className="tabular-nums">v{__APP_VERSION__}</span>
         </div>
       </div>
     </div>

@@ -18,7 +18,7 @@ export const CodeBlock = ({ language, className, children }: CodeBlockProps) => 
   const text = String(children);
   return (
     <div className="relative group my-6">
-      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         <button
           onClick={() => {
             void navigator.clipboard.writeText(text.trim());

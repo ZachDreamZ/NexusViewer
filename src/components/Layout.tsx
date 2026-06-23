@@ -123,16 +123,13 @@ export const Layout: React.FC<LayoutProps> = ({ darkMode, setDarkMode }) => {
                 onChange={setContent}
                 onScroll={handleEditorScroll}
               />
-              <div
-                ref={previewRef}
-                className="flex-1 h-full overflow-hidden"
-              >
-                <Preview content={state.content} currentFile={state.filePath} />
+              <div className="flex-1 h-full overflow-hidden">
+                <Preview content={state.content} currentFile={state.filePath} scrollRef={previewRef} />
               </div>
             </main>
           </div>
         ) : (
-          <Welcome />
+          <Welcome onChooseFolder={project.chooseFolder} />
         )}
       </div>
 
