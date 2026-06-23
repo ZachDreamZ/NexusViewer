@@ -49,7 +49,7 @@ export const remarkCallout: RemarkPlugin = () => {
       node.data = node.data ?? {};
       node.data.hProperties = {
         ...(node.data.hProperties ?? {}),
-        'data-callout-type': type,
+        dataCalloutType: type,
       };
     }
   };
