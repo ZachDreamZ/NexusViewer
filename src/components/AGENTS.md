@@ -145,7 +145,7 @@ Create new components as separate files. Ensure a clear separation between prese
 
 #### Welcome.tsx
 - First-run / no-project landing view that fills the editor+preview area
-- Renders `src/content/welcome.md` via `react-markdown` + `remark-gfm` + `remarkCallout`
+- Renders `src/content/welcome.md` via `react-markdown` + `remark-gfm` + `remark-math` + `remarkCallout` + `rehype-katex`
 - Shows the NexusViewer logo (via `<Logo size={64} large />`) and an **Open Folder** CTA in the top-right
 - Accepts `onChooseFolder` prop — Layout passes `project.chooseFolder` so the button correctly updates React project state
 - Uses `createMarkdownComponents(null, { withSyntaxHighlight: false })` — the welcome view skips Prism to keep things lightweight (read-only, no copy buttons)

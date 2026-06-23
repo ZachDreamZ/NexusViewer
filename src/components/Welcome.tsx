@@ -1,5 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { remarkCallout } from '../lib/remarkCallout';
 import welcomeContent from '../content/welcome.md?raw';
 import { createMarkdownComponents } from '../lib/markdown';
@@ -26,7 +28,7 @@ export const Welcome: React.FC<WelcomeProps> = ({ onChooseFolder }) => {
           </button>
         </div>
         <div className="markdown-body">
-          <ReactMarkdown remarkPlugins={[remarkGfm, remarkCallout]} components={components}>
+          <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath, remarkCallout]} rehypePlugins={[rehypeKatex]} components={components}>
             {welcomeContent}
           </ReactMarkdown>
         </div>
