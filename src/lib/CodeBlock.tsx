@@ -5,7 +5,7 @@ import { Copy, Check } from 'lucide-react';
 import { cn } from './utils';
 
 type OneDarkStyle = Record<string, Record<string, unknown>>;
-const oneDarkStyle: OneDarkStyle = oneDark as unknown as OneDarkStyle;
+const oneDarkStyle = oneDark as OneDarkStyle;
 
 interface CodeBlockProps {
   language: string;

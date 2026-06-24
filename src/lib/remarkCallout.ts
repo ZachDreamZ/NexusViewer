@@ -24,7 +24,7 @@ const collect = (node: MdastNode, type: string, out: MdastNode[]): void => {
 export const remarkCallout: RemarkPlugin = () => {
   return (tree) => {
     const blockquotes: MdastNode[] = [];
-    collect(tree as unknown as MdastNode, 'blockquote', blockquotes);
+    collect(tree as MdastNode, 'blockquote', blockquotes);
 
     for (const node of blockquotes) {
       const firstChild = node.children?.[0];
