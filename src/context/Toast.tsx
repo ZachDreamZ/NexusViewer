@@ -81,7 +81,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               {t.action && (
                 <button
                   onClick={() => {
-                    t.action!.onClick();
+                    t.action.onClick();
                     dismiss(t.id);
                   }}
                   className="shrink-0 h-6 px-2 text-caption-1 font-medium rounded-md border border-border hover:bg-accent transition-colors duration-200 ease-out"
