@@ -50,7 +50,10 @@ export const Preview: React.FC<PreviewProps> = ({ content = '', currentFile = nu
     setLightboxIndex((i) => (i + 1) % imageSources.length);
   }, [imageSources.length]);
 
-  const components = createMarkdownComponents(currentFile, { onImageClick: handleImageClick });
+  const components = useMemo(
+    () => createMarkdownComponents(currentFile, { onImageClick: handleImageClick }),
+    [currentFile, handleImageClick]
+  );
 
   return (
     <section
