@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { useFile } from '../context/useFile';
 import { useToast } from '../context/useToast';
 
 export interface UseWatcherOptions {
@@ -20,7 +19,6 @@ export const useWatcher = ({
   onTreeChange,
 }: UseWatcherOptions): void => {
   const toast = useToast();
-  const { setFile } = useFile();
 
   const handlersRef = useRef({ onFileChange, onFileDelete, onTreeChange });
   const stateRef = useRef({ selectedFile, isDirty });
@@ -57,5 +55,5 @@ export const useWatcher = ({
       }
     });
     return unsubscribe;
-  }, [projectRoot, toast, setFile]);
+  }, [projectRoot, toast]);
 };

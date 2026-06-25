@@ -35,7 +35,7 @@ export const Layout: React.FC<LayoutProps> = ({ darkMode, setDarkMode }) => {
     []
   );
 
-  const handleEditorScroll = () => {
+  const handleEditorScroll = useCallback(() => {
     const editor = editorRef.current;
     const preview = previewRef.current;
     if (!editor || !preview) return;
@@ -44,7 +44,7 @@ export const Layout: React.FC<LayoutProps> = ({ darkMode, setDarkMode }) => {
     if (editorRange <= 0 || previewRange <= 0) return;
     const scrollPercentage = editor.scrollTop / editorRange;
     preview.scrollTop = scrollPercentage * previewRange;
-  };
+  }, []);
 
   const handleSave = useCallback(async () => {
     if (!state.filePath) {

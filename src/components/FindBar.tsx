@@ -66,22 +66,24 @@ export const FindBar: React.FC<FindBarProps> = ({
 
   const goNext = useCallback(() => {
     if (matches.length === 0) return;
-    setMatchIndex((matchIndex + 1) % matches.length);
-  }, [matchIndex, matches.length]);
+    setMatchIndex(prev => (prev + 1) % matches.length);
+  }, [matches.length]);
 
   const goPrev = useCallback(() => {
     if (matches.length === 0) return;
-    setMatchIndex((matchIndex - 1 + matches.length) % matches.length);
-  }, [matchIndex, matches.length]);
+    setMatchIndex(prev => (prev - 1 + matches.length) % matches.length);
+  }, [matches.length]);
 
   const replaceCurrent = useCallback(() => {
     if (matches.length === 0) return;
     const idx = Math.min(matchIndex, Math.max(0, matches.length - 1));
     const match = matches[idx];
     if (!match) return;
-    const next = content.slice(0, match.start) + replacement + content.slice(match.end);
+    // Use content from ref to avoid stale closure
+    const currentContent = textareaRef.current?.value ?? content;
+    const next = currentContent.slice(0, match.start) + replacement + currentContent.slice(match.end);
     onChange(next);
-  }, [matches, matchIndex, replacement, content, onChange]);
+  }, [matches, matchIndex, replacement, content, onChange, textareaRef]);
 
   const replaceAll = useCallback(() => {
     if (!query) return;

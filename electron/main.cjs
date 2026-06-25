@@ -194,7 +194,8 @@ async function findDefaultMarkdown(startDir, maxDepth = 4) {
     let entries;
     try {
       entries = await fs.readdir(dir, { withFileTypes: true });
-    } catch {
+    } catch (err) {
+      console.warn('findDefaultMarkdown: skipping unreadable directory:', dir, err.message);
       return null;
     }
     const readme = entries.find(e => !e.isDirectory() && e.name.toLowerCase() === 'readme.md');
