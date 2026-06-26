@@ -13,7 +13,14 @@ interface PreviewProps {
   scrollRef?: React.Ref<HTMLDivElement>;
 }
 
+// ReDoS audit: both regexes use negated character classes only — no nested
+// quantifiers or alternation loops that could cause catastrophic backtracking.
+// Defense-in-depth: bound input size to prevent any theoretical resource
+// exhaustion on pathological input.
+const MAX_EXTRACT_LENGTH = 1_000_000; // 1 MB
+
 const extractImages = (markdown: string): LightboxImage[] => {
+  if (markdown.length > MAX_EXTRACT_LENGTH) return [];
   const images: LightboxImage[] = [];
   const mdImage = /!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
   let m: RegExpExecArray | null;
